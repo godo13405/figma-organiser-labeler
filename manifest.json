@@ -11,5 +11,19 @@
   "networkAccess": {
     "allowedDomains": ["none"]
   },
-  "permissions": ["currentuser"]
+  "permissions": ["currentuser"],
+  "menu": [
+    {
+      "name": "To Do",
+      "command": "setStateTo-Do"
+    },
+    {
+      "name": "Done",
+      "command": "setStateDone"
+    },
+    {
+      "name": "In Progress",
+      "command": "setStateIn-Progress"
+    }
+  ]
 }

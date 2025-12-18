@@ -27,6 +27,6 @@
   document.getElementById("rename").onclick = () => {
     const name = document.getElementById("state").value;
     const state = options.filter((_state) => _state.label === name);
-    parent.postMessage({ pluginMessage: { state } }, "*");
+    parent.postMessage({ pluginMessage: { fn: "setTitle", state } }, "*");
   };
 </script>
