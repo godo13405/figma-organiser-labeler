@@ -1,7 +1,59 @@
-<h2>Organiser Labeler</h2>
-<select id="state"></select>
-<button id="rename">Set State</button>
+<style>
+  :root {
+    --color-active: blue;
+  }
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+  }
+  nav {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #aaa;
+  }
+  .tab {
+    flex: 1;
+    text-decoration: none;
+    text-align: center;
+    padding: 0.4em;
+  }
+  .tab.active {
+    font-weight: 800;
+    border-bottom: 4px solid var(--color-active);
+  }
+  .tabContent {
+    padding-top: 1em;
+  }
+  .tabContent:not(.active) {
+    display: none;
+  }
+</style>
+
+<h2>Labeller Organiser</h2>
+<nav id="nav">
+  <a class="tab active" id="rename-content">Rename</a>
+  <a class="tab" id="configure-content">Configure</a>
+</nav>
+<div class="tabContent active" id="rename-content">
+  <select id="state"></select>
+  <button id="rename">Set State</button>
+</div>
+<div class="tabContent" id="configure-content">Hello World</div>
 <script>
+  const tabClick = (e) => {
+    const id = e.target.id;
+    document.querySelectorAll("[id$='-content']").forEach((elem) => {
+      elem.classList.remove("active");
+    });
+
+    document.querySelectorAll(`#${id}`).forEach((elem) => {
+      elem.classList.add("active");
+    });
+  };
+
+  document.querySelectorAll(".tab").forEach((elem) => {
+    elem.addEventListener("click", tabClick, false);
+  });
+
   const options = [
     {
       label: "Done",

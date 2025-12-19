@@ -1,5 +1,5 @@
 {
-  "name": "Organiser Labeler",
+  "name": "Labeller Organiser",
   "id": "1583442933064683639",
   "api": "1.0.0",
   "main": "code.js",
@@ -13,6 +13,10 @@
   },
   "permissions": ["currentuser"],
   "menu": [
+    {
+      "name": "Configure",
+      "command": "config"
+    },
     {
       "name": "To Do",
       "command": "setStateTo-Do"
