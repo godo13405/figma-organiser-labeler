@@ -18,6 +18,10 @@
       "command": "config"
     },
     {
+      "name": "Run Report",
+      "command": "report"
+    },
+    {
       "name": "To Do",
       "command": "setStateTo-Do"
     },
