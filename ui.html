@@ -39,6 +39,7 @@
 </div>
 <div class="tabContent" id="configure-content"></div>
 <script>
+  // functions exist before anything else so they can be called
   const tabClick = (e) => {
     const id = e.target.id;
     document.querySelectorAll("[id$='-content']").forEach((elem) => {
@@ -50,35 +51,29 @@
     });
   };
 
-  document.querySelectorAll(".tab").forEach((elem) => {
-    elem.addEventListener("click", tabClick, false);
-  });
+  // get options from code.js
+  const options = [];
+  window.onmessage = (event) => {
+    const msg = event.data.pluginMessage;
 
-  const options = [
-    {
-      label: "Done",
-      marker: "🟢",
-    },
-    {
-      label: "To Do",
-      marker: "⚪️",
-    },
-    {
-      label: "In Progress",
-      marker: "🟡",
-    },
-  ];
+    if (msg.type === "options") {
+      options.push(...msg.options);
+    }
+    document.querySelectorAll(".tab").forEach((elem) => {
+      elem.addEventListener("click", tabClick, false);
+    });
 
-  options.map((option) => {
-    const elem = document.createElement("option");
-    elem.text = `${option.marker} ${option.label}`;
-    elem.value = option.label;
-    document.getElementById("state").appendChild(elem);
-  });
+    options.map((option) => {
+      const elem = document.createElement("option");
+      elem.text = `${option.marker} ${option.label}`;
+      elem.value = option.label;
+      document.getElementById("state").appendChild(elem);
+    });
 
-  document.getElementById("rename").onclick = () => {
-    const name = document.getElementById("state").value;
-    const state = options.filter((_state) => _state.label === name);
-    parent.postMessage({ pluginMessage: { fn: "setTitle", state } }, "*");
+    document.getElementById("rename").onclick = () => {
+      const name = document.getElementById("state").value;
+      const state = options.filter((_state) => _state.label === name);
+      parent.postMessage({ pluginMessage: { fn: "setTitle", state } }, "*");
+    };
   };
 </script>

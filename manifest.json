@@ -14,6 +14,10 @@
   "permissions": ["currentuser"],
   "menu": [
     {
+      "name": "Assign Status",
+      "command": "assign-status"
+    },
+    {
       "name": "Configure",
       "command": "config"
     },
@@ -28,6 +32,22 @@
     {
       "name": "Done",
       "command": "setStateDone"
+    },
+    {
+      "name": "In Progress",
+      "command": "setStateIn-Progress"
+    },
+    {
+      "name": "Design Review",
+      "command": "setStateDesign-Review"
+    },
+    {
+      "name": "Placeholder",
+      "command": "setStatePlaceholder"
+    },
+    {
+      "name": "QA",
+      "command": "setStateQA"
     },
     {
       "name": "In Progress",
