@@ -1,43 +1,64 @@
 <style>
   :root {
     --color-active: blue;
+    --color-background: #eee;
   }
   body {
     font-family: Helvetica, Arial, sans-serif;
+    background-color: var(--color-background);
   }
-  nav {
+
+  .listicle {
     display: flex;
-    flex-direction: row;
-    border-bottom: 1px solid #aaa;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    gap: 0.4em;
   }
-  .tab {
-    flex: 1;
-    text-decoration: none;
-    text-align: center;
-    padding: 0.4em;
+
+  .status-assign-button {
+    text-align: left;
+    border: 0;
+    padding: 0.4em 0.6em;
+    background-color: #fff;
+    cursor: pointer;
+    transition: font-weight 0.2s ease-out;
   }
-  .tab.active {
-    font-weight: 800;
-    border-bottom: 4px solid var(--color-active);
+  .status-assign-button:hover {
+    font-weight: 700;
   }
-  .tabContent {
-    padding-top: 1em;
-  }
-  .tabContent:not(.active) {
+
+  .content-container:not(.active) {
     display: none;
   }
-</style>
 
-<h2>Labeller Organiser</h2>
-<nav id="nav">
-  <a class="tab active" id="rename-content">Rename</a>
-  <a class="tab" id="configure-content">Configure</a>
-</nav>
-<div class="tabContent active" id="rename-content">
-  <select id="state"></select>
-  <button id="rename">Set State</button>
-</div>
-<div class="tabContent" id="configure-content"></div>
+  #status-edit {
+    list-style: none;
+    padding: 0;
+  }
+
+  #status-edit li {
+    display: flex;
+    flex-direction: row;
+  }
+
+  #status-edit input {
+    border: 1px solid #aaa;
+  }
+
+  #status-edit .status-edit-marker {
+    width: 2em;
+    text-align: center;
+  }
+</style>
+<main class="content-container" id="assign-status-content">
+  <h3>Assign Status</h3>
+  <ul class="listicle" id="status-apply"></ul>
+</main>
+<main class="content-container" id="config-content">
+  <h3>Configure</h3>
+  <ul class="listicle" id="status-edit"></ul>
+</main>
 <script>
   // functions exist before anything else so they can be called
   const tabClick = (e) => {
@@ -56,24 +77,47 @@
   window.onmessage = (event) => {
     const msg = event.data.pluginMessage;
 
-    if (msg.type === "options") {
-      options.push(...msg.options);
+    switch (msg.type) {
+      case "command":
+        document
+          .querySelector(`#${msg.command}-content`)
+          .classList.add("active");
+        break;
+      case "options":
+        options.push(...msg.options);
+        break;
     }
+
     document.querySelectorAll(".tab").forEach((elem) => {
       elem.addEventListener("click", tabClick, false);
     });
 
     options.map((option) => {
-      const elem = document.createElement("option");
-      elem.text = `${option.marker} ${option.label}`;
-      elem.value = option.label;
-      document.getElementById("state").appendChild(elem);
-    });
+      // add options to select
+      const elem = document.createElement("button");
+      elem.textContent = `${option.marker} ${option.label}`;
+      elem.classList.add("status-assign-button");
+      elem.onclick = () =>
+        parent.postMessage(
+          { pluginMessage: { fn: "setTitle", state: option } },
+          "*"
+        );
+      document.querySelector("#status-apply").appendChild(elem);
 
-    document.getElementById("rename").onclick = () => {
-      const name = document.getElementById("state").value;
-      const state = options.filter((_state) => _state.label === name);
-      parent.postMessage({ pluginMessage: { fn: "setTitle", state } }, "*");
-    };
+      // add options to configure
+      const markerInput = document.createElement("input");
+      markerInput.value = option.marker;
+      markerInput.classList.add("status-edit-marker");
+
+      const labelInput = document.createElement("input");
+      labelInput.value = option.label;
+      labelInput.classList.add("status-edit-label");
+
+      const container = document.createElement("li");
+      container.appendChild(markerInput);
+      container.appendChild(labelInput);
+
+      document.querySelector("#status-edit").appendChild(container);
+    });
   };
 </script>

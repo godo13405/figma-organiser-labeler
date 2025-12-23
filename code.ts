@@ -43,6 +43,7 @@ const setAuthor = (user) => {
 };
 
 const setTitle = ({ state }) => {
+  console.log("🚀 ~ setTitle ~ state:", state);
   // is 1 node at least selected?
   if (_selected.length) {
     if (state.length)
@@ -438,6 +439,11 @@ if (figma.command) {
   // process string to match state label
   if (figma.command == "config") {
     figma.showUI(__html__);
+    // pass command to the UI
+    figma.ui.postMessage({
+      type: "command",
+      command: figma.command,
+    });
     // pass options to the UI
     figma.ui.postMessage({
       type: "options",
@@ -451,7 +457,12 @@ if (figma.command) {
       figma.closePlugin();
     });
   } else if (figma.command == "assign-status") {
-    figma.showUI(__html__);
+    figma.showUI(__html__, { width: 200, height: 300 });
+    // pass command to the UI
+    figma.ui.postMessage({
+      type: "command",
+      command: figma.command,
+    });
     // pass options to the UI
     figma.ui.postMessage({
       type: "options",
