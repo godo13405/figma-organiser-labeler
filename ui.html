@@ -2,13 +2,35 @@
   :root {
     --color-active: blue;
     --color-background: #eee;
+    --border-radius: 0.4em;
   }
   body {
     font-family: Helvetica, Arial, sans-serif;
     background-color: var(--color-background);
   }
 
+  .content-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .content-container:not(.active) {
+    display: none;
+  }
+
+  .title-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .title {
+    margin: 0;
+  }
+
   .listicle {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -28,10 +50,6 @@
     font-weight: 700;
   }
 
-  .content-container:not(.active) {
-    display: none;
-  }
-
   #status-edit {
     list-style: none;
     padding: 0;
@@ -44,20 +62,32 @@
 
   #status-edit input {
     border: 1px solid #aaa;
+    padding: 0.2em 0.4em;
   }
 
-  #status-edit .status-edit-marker {
+  .status-edit-marker {
     width: 2em;
     text-align: center;
+    margin-right: -1px;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+
+  .status-edit-label {
+    flex: 1;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
 </style>
 <main class="content-container" id="assign-status-content">
-  <h3>Assign Status</h3>
+  <h3 class="title">Assign Status</h3>
   <ul class="listicle" id="status-apply"></ul>
 </main>
 <main class="content-container" id="config-content">
-  <h3>Configure</h3>
+  <div class="title-container">
+    <h3 class="title">Configure</h3>
+    <button class="option-new" onClick="addStatus()">Add</button>
+  </div>
   <ul class="listicle" id="status-edit"></ul>
+  <button class="save-button" onClick="saveChanges()">Save Changes</button>
 </main>
 <script>
   // functions exist before anything else so they can be called
@@ -72,26 +102,47 @@
     });
   };
 
-  // get options from code.js
-  const options = [];
-  window.onmessage = (event) => {
-    const msg = event.data.pluginMessage;
+  const addStatus = (option) => {
+    const markerInput = document.createElement("input");
+    markerInput.value = option ? option.marker : "";
+    markerInput.min = 1;
+    markerInput.max = 1;
+    markerInput.classList.add("status-edit-marker");
 
-    switch (msg.type) {
-      case "command":
-        document
-          .querySelector(`#${msg.command}-content`)
-          .classList.add("active");
-        break;
-      case "options":
-        options.push(...msg.options);
-        break;
-    }
+    const labelInput = document.createElement("input");
+    labelInput.value = option ? option.label : "";
+    labelInput.classList.add("status-edit-label");
 
-    document.querySelectorAll(".tab").forEach((elem) => {
-      elem.addEventListener("click", tabClick, false);
+    const container = document.createElement("li");
+    container.appendChild(markerInput);
+    container.appendChild(labelInput);
+
+    document.querySelector("#status-edit").appendChild(container);
+  };
+
+  const saveChanges = () => {
+    // get all markers
+    const markers = document.querySelectorAll(".status-edit-marker");
+    // get all labels
+    const labels = document.querySelectorAll(".status-edit-label");
+
+    // create an options object
+    const _options = [];
+    markers.forEach((val, k) => {
+      _options.push({
+        label: labels[k].value,
+        marker: markers[k].value,
+      });
     });
 
+    // save changes
+    parent.postMessage(
+      { pluginMessage: { fn: "saveChanges", options: _options } },
+      "*"
+    );
+  };
+
+  const assignList = (options) => {
     options.map((option) => {
       // add options to select
       const elem = document.createElement("button");
@@ -105,19 +156,24 @@
       document.querySelector("#status-apply").appendChild(elem);
 
       // add options to configure
-      const markerInput = document.createElement("input");
-      markerInput.value = option.marker;
-      markerInput.classList.add("status-edit-marker");
-
-      const labelInput = document.createElement("input");
-      labelInput.value = option.label;
-      labelInput.classList.add("status-edit-label");
-
-      const container = document.createElement("li");
-      container.appendChild(markerInput);
-      container.appendChild(labelInput);
-
-      document.querySelector("#status-edit").appendChild(container);
+      addStatus(option);
     });
+  };
+
+  // get options from code.js
+  let options = [];
+  window.onmessage = (event) => {
+    const msg = event.data.pluginMessage;
+
+    switch (msg.type) {
+      case "command":
+        document
+          .querySelector(`#${msg.command}-content`)
+          .classList.add("active");
+        break;
+      case "options":
+        assignList(msg.options);
+        break;
+    }
   };
 </script>

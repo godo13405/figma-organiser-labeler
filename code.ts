@@ -43,7 +43,6 @@ const setAuthor = (user) => {
 };
 
 const setTitle = ({ state }) => {
-  console.log("🚀 ~ setTitle ~ state:", state);
   // is 1 node at least selected?
   if (_selected.length) {
     if (state.length)
@@ -356,78 +355,71 @@ const findStatus = (statName) => {
   }
 };
 
-interface OptionsArr {
-  label: string;
-  marker: string;
-  color: string;
-}
-
-let options: OptionsArr[] = [];
-
-const getOptions = ({
+const getOptions = (
   option = [
     {
       label: "Done",
       marker: "🟢",
-      color: "#00C200",
     },
     {
       label: "To Do",
       marker: "⚪️",
-      color: "#fafafa",
     },
     {
       label: "In Progress",
       marker: "🟡",
-      color: "#FFD700",
     },
     {
       label: "Design Review",
       marker: "🎨",
-      color: "#E79800",
     },
     {
       label: "Placeholder",
       marker: "🪧",
-      color: "#bbb",
     },
     {
       label: "QA",
       marker: "🔎",
-      color: "#555",
     },
     {
       label: "Blocked",
       marker: "🔴",
-      color: "#EC0000",
     },
-  ],
-  addRemove,
-}: {
-  option?;
-  addRemove?;
-} = {}) => {
-  // if options is empty, populate with default
-  if (!options.length) options.push(...option);
-
-  if (addRemove == "add") {
-    options.push(option);
-    //   } else if (addRemove == "remove") {
+  ]
+) => {
+  // check for previously saved options
+  const _options = JSON.parse(figma.root.getPluginData("options"));
+  if (_options && _options.length) {
+    option = _options;
   }
 
-  return options;
+  // update stored satuses
+  figma.root.setPluginData("options", JSON.stringify(option));
+  return option;
 };
 
-options = getOptions();
+const options = getOptions();
 
 figma.ui.onmessage = ({
-  fn = "setTitle",
-  state = {
-    label: "To Do",
-    marker: "⚪️",
-  },
-}) => {
+  fn,
+  state,
+  options,
+}: { fn?; state?; options? } = {}) => {
+  if (!state)
+    state = {
+      label: "To Do",
+      marker: "⚪️",
+    };
   switch (fn) {
+    case "saveChanges":
+      figma.root.setPluginData("options", JSON.stringify(options));
+      console.log(
+        "saved to memory",
+        options,
+        JSON.parse(figma.root.getPluginData("options"))
+      );
+      figma.notify(`Changes saved`);
+      break;
     default:
       setTitle({ state });
       break;
@@ -435,9 +427,7 @@ figma.ui.onmessage = ({
 };
 
 if (figma.command) {
-  // if a command was passed as a shortcut
-  // process string to match state label
-  if (figma.command == "config") {
+  if (figma.command == "config" || figma.command == "assign-status") {
     figma.showUI(__html__);
     // pass command to the UI
     figma.ui.postMessage({
@@ -449,6 +439,11 @@ if (figma.command) {
       type: "options",
       options,
     });
+  }
+  // if a command was passed as a shortcut
+  // process string to match state label
+  if (figma.command == "config") {
+    figma.ui.resize(200, 360);
   } else if (figma.command == "report") {
     // can take a while, so set a loading message
     figma.notify(`Generating report…`);
@@ -457,17 +452,7 @@ if (figma.command) {
       figma.closePlugin();
     });
   } else if (figma.command == "assign-status") {
-    figma.showUI(__html__, { width: 200, height: 300 });
-    // pass command to the UI
-    figma.ui.postMessage({
-      type: "command",
-      command: figma.command,
-    });
-    // pass options to the UI
-    figma.ui.postMessage({
-      type: "options",
-      options,
-    });
+    figma.ui.resize(200, 300);
   } else {
     const cmd = figma.command.slice(8, figma.command.length).replace("-", " ");
 
