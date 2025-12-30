@@ -1,32 +1,93 @@
 <style>
   :root {
-    --color-active: blue;
+    --color-active: #4bb9e5;
     --color-background: #eee;
+    --color-background-light: #fff;
+    --color-background-dark: #ccc;
+    --color-border: #aaa;
+    --color-delete: rgb(216, 63, 46);
     --border-radius: 0.4em;
+    --nav-height: 2rem;
+  }
+
+  html,
+  body {
+    padding: 0;
+    margin: 0;
   }
   body {
     font-family: Helvetica, Arial, sans-serif;
     background-color: var(--color-background);
   }
 
+  .tabsContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-border);
+    height: var(--nav-height);
+  }
+  .tabsInnerContainer {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .tab {
+    padding: 0.6em 1em;
+    font-size: 0.8em;
+    cursor: pointer;
+  }
+
+  .tab:not(.active) {
+    opacity: 0.4;
+  }
+
+  .more-button {
+    display: flex;
+    align-items: center;
+    padding: 0 0.2em;
+  }
+
+  .more-button:target {
+    background-color: var(--color-background-light);
+  }
+
+  .tab:hover,
+  .more-button:hover {
+    background-color: rgba(50, 50, 50, 0.05);
+  }
+
   .content-container {
-    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    padding: 0.8em;
   }
 
   .content-container:not(.active) {
     display: none;
   }
 
-  .title-container {
+  .actions-container {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    gap: 0.8em;
+    margin-top: 1em;
   }
-  .title {
-    margin: 0;
+
+  .action-button {
+    cursor: pointer;
+    background-color: var(--color-active);
+    color: var(--color-background-light);
+    padding: 0.4em 0.6em;
+    border-radius: var(--border-radius);
+    border: 0;
+  }
+
+  .action-button.secondary {
+    background-color: transparent;
+    border: 1px solid var(--color-active);
+    color: var(--color-active);
   }
 
   .listicle {
@@ -34,6 +95,7 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    margin: 0;
     padding: 0;
     gap: 0.4em;
   }
@@ -42,12 +104,16 @@
     text-align: left;
     border: 0;
     padding: 0.4em 0.6em;
-    background-color: #fff;
+    background-color: var(--color-background-light);
     cursor: pointer;
     transition: font-weight 0.2s ease-out;
   }
   .status-assign-button:hover {
     font-weight: 700;
+  }
+  .status-assign-button:not(.active) {
+    pointer-events: none;
+    opacity: 0.4;
   }
 
   #status-edit {
@@ -74,35 +140,115 @@
 
   .status-edit-label {
     flex: 1;
+    border-radius: 0;
+  }
+
+  .status-delete {
+    cursor: pointer;
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border: 1px solid var(--color-border);
+    border-left-width: 0;
+    background-color: var(--color-background-dark);
+  }
+
+  .context-menu {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.8em;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.6em;
+    box-shadow: 0 0.2em 0.4em rgba(50, 50, 50, 0.4);
+    background-color: var(--color-background-light);
+    position: absolute;
+    top: calc(var(--nav-height) + 0.2em);
+    right: 0.2em;
+  }
+
+  .context-menu:not(.active) {
+    display: none;
+  }
+
+  .context-option {
+    display: flex;
+    padding: 0.8em 1em;
+    cursor: pointer;
+  }
+
+  .notification {
+    background-color: #c1e5f3;
+    border-radius: 0.6em;
+    font-size: 0.6em;
+    padding: 0.6em;
   }
 </style>
-<main class="content-container" id="assign-status-content">
-  <h3 class="title">Assign Status</h3>
+<!--
+<nav class="tabsContainer">
+  <div class="tabsInnerContainer">
+    <a class="tab assign-target" id="assign">Assign</a>
+    <a class="tab config-target" id="config">Configure</a>
+  </div>
+
+  <a class="more-button" id="context-menu" onClick="toggleContextMenu()"
+    ><svg
+      xmlns="http://www.w3.org/2000/svg"
+      height="20px"
+      viewBox="0 -960 960 960"
+      width="20px"
+      fill="#000000"
+    >
+      <path
+        d="M479.79-192Q450-192 429-213.21t-21-51Q408-294 429.21-315t51-21Q510-336 531-314.79t21 51Q552-234 530.79-213t-51 21Zm0-216Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Zm0-216Q450-624 429-645.21t-21-51Q408-726 429.21-747t51-21Q510-768 531-746.79t21 51Q552-666 530.79-645t-51 21Z"
+      /></svg
+  ></a>
+</nav>
+<ul class="context-menu" id="context-menu">
+  <li><a class="context-option" onClick="resetOptions()">Reset Statuses</a></li>
+</ul>
+-->
+<main class="content-container assign-target" id="assign-content">
+  <p class="notification"></p>
   <ul class="listicle" id="status-apply"></ul>
 </main>
-<main class="content-container" id="config-content">
-  <div class="title-container">
-    <h3 class="title">Configure</h3>
-    <button class="option-new" onClick="addStatus()">Add</button>
-  </div>
+<!--
+<main class="content-container config-target" id="config-content">
   <ul class="listicle" id="status-edit"></ul>
-  <button class="save-button" onClick="saveChanges()">Save Changes</button>
+  <div class="actions-container" id="context-menu">
+    <button class="action-button secondary" onClick="addStatus()">
+      Add Status
+    </button>
+    <button class="action-button" onClick="saveChanges()">Save Changes</button>
+  </div>
 </main>
+-->
 <script>
+  // vars before anything
+  let statusKeyTracker = 0;
+  let activeTab;
+
   // functions exist before anything else so they can be called
-  const tabClick = (e) => {
-    const id = e.target.id;
-    document.querySelectorAll("[id$='-content']").forEach((elem) => {
+  const tabClick = (target) => {
+    document.querySelectorAll("[class*='-target']").forEach((elem) => {
       elem.classList.remove("active");
     });
 
-    document.querySelectorAll(`#${id}`).forEach((elem) => {
+    document.querySelectorAll(`.${target}-target`).forEach((elem) => {
       elem.classList.add("active");
     });
   };
 
-  const addStatus = (option) => {
+  const resetOptions = () => {
+    parent.postMessage({ pluginMessage: { fn: "resetOptions" } }, "*");
+  };
+
+  const toggleContextMenu = () => {
+    document.querySelectorAll("#context-menu").forEach((elem) => {
+      elem.classList.toggle("active");
+    });
+  };
+
+  const addStatus = (option, key = `status-edit-${statusKeyTracker}`) => {
     const markerInput = document.createElement("input");
     markerInput.value = option ? option.marker : "";
     markerInput.min = 1;
@@ -113,11 +259,24 @@
     labelInput.value = option ? option.label : "";
     labelInput.classList.add("status-edit-label");
 
+    const deleteButton = document.createElement("button");
+    deleteButton.innerText = "X";
+    deleteButton.title = "delete";
+    deleteButton.classList.add("status-delete");
+
+    deleteButton.addEventListener("click", (e) => {
+      e.target.parentElement.remove();
+    });
+
     const container = document.createElement("li");
+    container.id = key;
     container.appendChild(markerInput);
     container.appendChild(labelInput);
+    container.appendChild(deleteButton);
 
     document.querySelector("#status-edit").appendChild(container);
+
+    statusKeyTracker++;
   };
 
   const saveChanges = () => {
@@ -129,10 +288,13 @@
     // create an options object
     const _options = [];
     markers.forEach((val, k) => {
-      _options.push({
-        label: labels[k].value,
-        marker: markers[k].value,
-      });
+      // don't save empty fields
+      if (labels[k].value && markers[k].value) {
+        _options.push({
+          label: labels[k].value,
+          marker: markers[k].value,
+        });
+      }
     });
 
     // save changes
@@ -143,7 +305,7 @@
   };
 
   const assignList = (options) => {
-    options.map((option) => {
+    options.map((option, k) => {
       // add options to select
       const elem = document.createElement("button");
       elem.textContent = `${option.marker} ${option.label}`;
@@ -156,9 +318,25 @@
       document.querySelector("#status-apply").appendChild(elem);
 
       // add options to configure
-      addStatus(option);
+      // addStatus(option);
     });
   };
+
+  const updateSelection = (selection = []) => {
+    const notification = document.querySelector(".notification");
+    const elems = document.querySelectorAll(".status-assign-button");
+    if (!selection || !selection.length) {
+      notification.innerText = "Please select a Frame";
+      elems.forEach((e) => e.classList.remove("active"));
+    } else {
+      notification.innerText = `${selection.length} Frame${
+        selection.length > 1 ? "s" : ""
+      } to rename`;
+      elems.forEach((e) => e.classList.add("active"));
+    }
+  };
+  // stay up to date with selection
+  let selection;
 
   // get options from code.js
   let options = [];
@@ -167,9 +345,22 @@
 
     switch (msg.type) {
       case "command":
+        activeTab = msg.command;
+
+        // set tab to active
         document
-          .querySelector(`#${msg.command}-content`)
-          .classList.add("active");
+          .querySelectorAll(`.${activeTab}-target`)
+          .forEach((elem) => elem.classList.add("active"));
+
+        // assign event listener to tabs
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.addEventListener("click", (e) =>
+            tabClick(e.target.id.toLowerCase())
+          );
+        });
+        break;
+      case "selection":
+        updateSelection(event.data.pluginMessage.options);
         break;
       case "options":
         assignList(msg.options);

@@ -1,7 +1,8 @@
-const _selected = figma.currentPage.selection;
 const _baseSize = 8;
 const _progressWidth = 400;
 const _progressHeight = _baseSize;
+
+const _frame = { width: 240, height: 400 };
 
 const hexToRgb = (hex) => {
   // Remove leading #
@@ -29,12 +30,13 @@ const _color = {
 };
 
 const setAuthor = (user) => {
+  const selected = figma.currentPage.selection;
   // set initials
   const initialsQ = new RegExp(/[A-Z]/, "g");
   const initials = `${user.match(initialsQ)[0]}${user.match(initialsQ)[1]}`;
 
   // set author data on selected
-  _selected.forEach((node) => {
+  selected.forEach((node) => {
     node.setPluginData("authorFullName", user);
     node.setPluginData("authorInitials", initials);
   });
@@ -44,7 +46,8 @@ const setAuthor = (user) => {
 
 const setTitle = ({ state }) => {
   // is 1 node at least selected?
-  if (_selected.length) {
+  const selected = figma.currentPage.selection;
+  if (selected.length) {
     if (state.length)
       // only assign a single state
       state = state[0];
@@ -55,14 +58,14 @@ const setTitle = ({ state }) => {
     };
 
     // loop over selection
-    const selection = _selected;
+    const selection = selected;
     selection.map((selected) => {
       // let's make sure the name isn't erased. Let's extract it from the name
       const title = selected.name.split(/\] /gm);
       const titleArr = title.slice(title.length - 1, title.length)[0];
 
       selected.name = `{${output.state}} [${output.author}] ${
-        titleArr[0] || selected.name
+        titleArr || selected.name
       }`;
     });
 
@@ -214,12 +217,6 @@ const createProgReport = (arr) => {
     prog.primaryAxisSizingMode = "FIXED";
     prog.resize(_progressWidth * ratio, _progressHeight);
     prog.counterAxisSizingMode = "FIXED";
-    prog.fills = [
-      {
-        type: "SOLID",
-        color: hexToRgb(status.color),
-      },
-    ];
 
     progBar.appendChild(prog);
   });
@@ -355,47 +352,111 @@ const findStatus = (statName) => {
   }
 };
 
-const getOptions = (
-  option = [
-    {
-      label: "Done",
-      marker: "🟢",
-    },
-    {
-      label: "To Do",
-      marker: "⚪️",
-    },
-    {
-      label: "In Progress",
-      marker: "🟡",
-    },
-    {
-      label: "Design Review",
-      marker: "🎨",
-    },
-    {
-      label: "Placeholder",
-      marker: "🪧",
-    },
-    {
-      label: "QA",
-      marker: "🔎",
-    },
-    {
-      label: "Blocked",
-      marker: "🔴",
-    },
-  ]
-) => {
+const optionsDefault = [
+  {
+    label: "Done",
+    marker: "🟢",
+    color: "#00C200",
+  },
+  {
+    label: "To Do",
+    marker: "⚪️",
+    color: "#fafafa",
+  },
+  {
+    label: "In Progress",
+    marker: "🟡",
+    color: "#FFD700",
+  },
+  {
+    label: "Design Review",
+    marker: "🎨",
+    color: "#E79800",
+  },
+  {
+    label: "Code Review",
+    marker: "💠",
+    color: "#4a90dfff",
+  },
+  {
+    label: "Placeholder",
+    marker: "🪧",
+    color: "#bbb",
+  },
+  {
+    label: "QA",
+    marker: "🔎",
+    color: "#555",
+  },
+  {
+    label: "Blocked",
+    marker: "🔴",
+    color: "#EC0000",
+  },
+];
+
+const getOptions = (option = optionsDefault) => {
   // check for previously saved options
-  const _options = JSON.parse(figma.root.getPluginData("options"));
-  if (_options && _options.length) {
+  const _options = []; // JSON.parse(figma.root.getPluginData("options"));
+
+  // if an empty array is passed, reset options to this function's default
+  if (!option.length) {
+    option = optionsDefault;
+    figma.notify("Statuses reset to default");
+  } else if (_options && _options.length) {
     option = _options;
   }
 
   // update stored satuses
   figma.root.setPluginData("options", JSON.stringify(option));
   return option;
+};
+
+const figmaCommand = (command) => {
+  switch (command) {
+    case "config":
+    case "assign":
+      figma.showUI(__html__, { width: _frame.width, height: _frame.height });
+      // keep up with selection
+      figma.on("selectionchange", () => {
+        figma.ui.postMessage({
+          type: "selection",
+          options: figma.currentPage.selection,
+        });
+      });
+
+      // fire initial selection logic
+      figma.ui.postMessage({
+        type: "selection",
+        options: figma.currentPage.selection,
+      });
+
+      // pass command to the UI
+      figma.ui.postMessage({
+        type: "command",
+        command: command,
+      });
+      // pass options to the UI
+      figma.ui.postMessage({
+        type: "options",
+        options,
+      });
+      break;
+    case "report":
+      // can take a while, so set a loading message
+      figma.notify(`Generating report…`);
+
+      runReport().then(() => {
+        figma.closePlugin();
+      });
+      break;
+    default:
+      setTitle({
+        state: findStatus(command.slice(8, command.length).replace("-", " ")),
+      });
+      figma.closePlugin();
+      break;
+  }
 };
 
 const options = getOptions();
@@ -411,13 +472,16 @@ figma.ui.onmessage = ({
       marker: "⚪️",
     };
   switch (fn) {
+    case "reset":
+      figmaCommand(figma.command);
+      break;
+    case "resetOptions":
+      options = getOptions([]);
+      figmaCommand(figma.command);
+      break;
     case "saveChanges":
       figma.root.setPluginData("options", JSON.stringify(options));
-      console.log(
-        "saved to memory",
-        options,
-        JSON.parse(figma.root.getPluginData("options"))
-      );
+      figmaCommand(figma.command);
       figma.notify(`Changes saved`);
       break;
     default:
@@ -427,38 +491,5 @@ figma.ui.onmessage = ({
 };
 
 if (figma.command) {
-  if (figma.command == "config" || figma.command == "assign-status") {
-    figma.showUI(__html__);
-    // pass command to the UI
-    figma.ui.postMessage({
-      type: "command",
-      command: figma.command,
-    });
-    // pass options to the UI
-    figma.ui.postMessage({
-      type: "options",
-      options,
-    });
-  }
-  // if a command was passed as a shortcut
-  // process string to match state label
-  if (figma.command == "config") {
-    figma.ui.resize(200, 360);
-  } else if (figma.command == "report") {
-    // can take a while, so set a loading message
-    figma.notify(`Generating report…`);
-
-    runReport().then(() => {
-      figma.closePlugin();
-    });
-  } else if (figma.command == "assign-status") {
-    figma.ui.resize(200, 300);
-  } else {
-    const cmd = figma.command.slice(8, figma.command.length).replace("-", " ");
-
-    // find the state by matching the label
-    const state = findStatus(cmd);
-    setTitle({ state });
-    figma.closePlugin();
-  }
+  figmaCommand(figma.command);
 }

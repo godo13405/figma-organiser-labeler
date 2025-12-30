@@ -15,7 +15,7 @@
   "menu": [
     {
       "name": "Assign Status",
-      "command": "assign-status"
+      "command": "assign"
     },
     {
       "name": "Configure",
@@ -40,6 +40,10 @@
     {
       "name": "Design Review",
       "command": "setStateDesign-Review"
+    },
+    {
+      "name": "Code Review",
+      "command": "setStateCode-Review"
     },
     {
       "name": "Placeholder",
