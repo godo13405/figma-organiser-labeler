@@ -168,61 +168,6 @@ const findExistingReport = () => {
   ) as FrameNode;
 };
 
-const createProgReport = (arr) => {
-  // create container
-  const progBar = figma.createFrame();
-  progBar.name = "Progress";
-  progBar.layoutMode = "HORIZONTAL";
-  progBar.layoutAlign = "STRETCH";
-  progBar.primaryAxisSizingMode = "FIXED";
-  progBar.counterAxisSizingMode = "AUTO";
-  progBar.cornerRadius = _baseSize;
-  progBar.fills = [
-    {
-      type: "SOLID",
-      color: hexToRgb("#ddd"),
-    },
-  ];
-  progBar.strokes = [
-    {
-      type: "SOLID",
-      color: hexToRgb("#fff"),
-    },
-  ];
-  progBar.itemSpacing = 1;
-  progBar.resize(_progressWidth, _progressHeight);
-
-  // get what 100% is by adding the length of all arrays
-  const keys = Object.keys(arr);
-  let total = 0;
-  keys.map((stat) => {
-    total += arr[stat].length;
-  });
-
-  // set each status and resize it
-  keys.map((k) => {
-    const status = findStatus(k.replace(/^[^\w]+/, "").trim()) || {
-      marker: null,
-      label: null,
-      color: null,
-    };
-
-    const stat = arr[k];
-    const ratio = stat.length / total;
-
-    const prog = figma.createFrame();
-    prog.name = `${status.marker} ${status.label} ${ratio * 100}%`;
-    prog.layoutMode = "HORIZONTAL";
-    prog.layoutAlign = "STRETCH";
-    prog.primaryAxisSizingMode = "FIXED";
-    prog.resize(_progressWidth * ratio, _progressHeight);
-    prog.counterAxisSizingMode = "FIXED";
-
-    progBar.appendChild(prog);
-  });
-  return progBar;
-};
-
 const runReport = async () => {
   let frame = findExistingReport();
 
@@ -279,9 +224,6 @@ const runReport = async () => {
     orgMatches[status].push(node);
   }
 
-  // create progress report
-  headerContainer.appendChild(createProgReport(orgMatches));
-
   frame.appendChild(headerContainer);
 
   // create reporting container
@@ -301,6 +243,9 @@ const runReport = async () => {
 
   // create status group
   for (const group of Object.keys(orgMatches)) {
+    // get count
+    const count = orgMatches[group].length;
+
     // create group container
     const container = figma.createFrame();
     container.layoutMode = "VERTICAL";
@@ -321,13 +266,39 @@ const runReport = async () => {
     ];
 
     // add title
-    container.appendChild(
-      await createTextRow(group, {
-        size: 18,
-        weight: "Semi Bold",
-        color: { r: 0.1, g: 0.1, b: 0.1 },
-      })
-    );
+    const title = await createTextRow(group, {
+      size: 18,
+      weight: "Semi Bold",
+      color: { r: 0, g: 0, b: 0 },
+    });
+
+    const titleContainer = figma.createFrame();
+    titleContainer.layoutMode = "HORIZONTAL";
+    titleContainer.layoutAlign = "STRETCH";
+    titleContainer.primaryAxisSizingMode = "FIXED";
+    titleContainer.counterAxisSizingMode = "AUTO";
+    titleContainer.paddingTop = _baseSize;
+    titleContainer.paddingBottom = _baseSize;
+    titleContainer.paddingLeft = _baseSize;
+    titleContainer.paddingRight = _baseSize;
+    titleContainer.strokes = [
+      {
+        type: "SOLID",
+        color: hexToRgb("#aaa"),
+      },
+    ];
+    titleContainer.strokeBottomWeight = 1;
+
+    titleContainer.appendChild(title);
+
+    const countText = await createTextRow(`${count}`, {
+      size: 18,
+      color: { r: 0, g: 0, b: 0 },
+    });
+    titleContainer.appendChild(countText);
+
+    container.appendChild(titleContainer);
+    title.layoutSizingHorizontal = "FILL";
 
     // add items
     for (const node of orgMatches[group]) {
