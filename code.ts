@@ -254,9 +254,8 @@ const runReport = async () => {
   reportTitle.layoutAlign = "MIN";
   headerContainer.appendChild(reportTitle);
 
-  const NAME_REGEX = /^\{.*?\}\s\[[A-Z]{2}\]/;
-
   // find all sections
+  const NAME_REGEX = /^\{.*?\}\s\[[A-Z]{2}\]/;
   const matches = figma.currentPage.findChildren((node) => {
     return node.type === "SECTION" && NAME_REGEX.test(node.name);
   });
@@ -417,14 +416,6 @@ const figmaCommand = (command) => {
     case "config":
     case "assign":
       figma.showUI(__html__, { width: _frame.width, height: _frame.height });
-      // keep up with selection
-      figma.on("selectionchange", () => {
-        figma.ui.postMessage({
-          type: "selection",
-          options: figma.currentPage.selection,
-        });
-      });
-
       // fire initial selection logic
       figma.ui.postMessage({
         type: "selection",
@@ -440,6 +431,17 @@ const figmaCommand = (command) => {
       figma.ui.postMessage({
         type: "options",
         options,
+      });
+      figma.ui.postMessage({
+        type: "selection",
+        options: figma.currentPage.selection,
+      });
+      // keep up with selection
+      figma.on("selectionchange", () => {
+        figma.ui.postMessage({
+          type: "selection",
+          options: figma.currentPage.selection,
+        });
       });
       break;
     case "report":
