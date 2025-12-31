@@ -22,8 +22,12 @@
       "command": "config"
     },
     {
-      "name": "Run Report",
+      "name": "Run Stauts Report",
       "command": "report"
+    },
+    {
+      "name": "Run People Report",
+      "command": "report-people"
     },
     {
       "name": "To Do",
