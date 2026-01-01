@@ -1,6 +1,5 @@
 const _baseSize = 8;
-const _progressWidth = 400;
-const _progressHeight = _baseSize;
+const _containerWidth = 300;
 const _font = { family: "Inter", style: "Regular" };
 const _fontBold = {
   family: "Inter",
@@ -80,9 +79,15 @@ const setTitle = ({ state }) => {
   }
 };
 
-const writeLine = async (node) => {
+const getLink = (node) => {
+  const { id } = node;
+  return `https://www.figma.com/design/${
+    figma.fileKey
+  }/${figma.root.name.replace(" ", "-")}?node-id=${id.replace(":", "-")}`;
+};
+
+const writeLine = async ({ node, isFirst, container }) => {
   const line = figma.createFrame();
-  //   line.resize(720, 1024);
 
   // ✅ Enable Auto Layout
   line.layoutMode = "VERTICAL";
@@ -90,15 +95,25 @@ const writeLine = async (node) => {
   line.counterAxisSizingMode = "AUTO";
 
   // padding
-  line.paddingTop = 8;
-  line.paddingBottom = 8;
-  line.paddingLeft = 8;
-  line.paddingRight = 8;
-  line.itemSpacing = 8;
+  line.paddingTop = _baseSize;
+  line.paddingBottom = _baseSize;
+  line.paddingLeft = _baseSize;
+  line.paddingRight = _baseSize;
+  line.itemSpacing = 0;
+
+  // border
+  line.strokes = [{ type: "SOLID", color: _color.background }];
+  line.strokeWeight = 0;
+  if (!isFirst) line.strokeTopWeight = 1;
 
   // add selection name
   const name = node.name.replace(/^\{.*?\}\s\[[A-Z]{2}\]/g, "").trim();
-  line.appendChild(await createTextRow(name));
+  const nameText = await createTextRow(name);
+  nameText.hyperlink = {
+    type: "URL",
+    value: getLink(line),
+  };
+  line.appendChild(nameText);
 
   // add author name
   const authorName = `by ${
@@ -111,8 +126,8 @@ const writeLine = async (node) => {
       color: { r: 0.4, g: 0.4, b: 0.4 },
     })
   );
-
-  return line;
+  container.appendChild(line);
+  line.layoutSizingHorizontal = "FILL";
 };
 
 const createFrame = () => {
@@ -171,6 +186,43 @@ const findExistingReport = (_name = "Status Report Container") => {
   return figma.currentPage.findOne(
     (node) => node.type === "FRAME" && node.name === _name
   ) as FrameNode;
+};
+
+const addHeader = async ({ title, count }) => {
+  // add title
+  title = await createTextRow(title, {
+    size: 18,
+    weight: "Semi Bold",
+    color: { r: 0, g: 0, b: 0 },
+  });
+
+  const titleContainer = figma.createFrame();
+  titleContainer.layoutMode = "HORIZONTAL";
+  titleContainer.layoutAlign = "STRETCH";
+  titleContainer.primaryAxisSizingMode = "FIXED";
+  titleContainer.counterAxisSizingMode = "AUTO";
+  titleContainer.paddingTop = _baseSize;
+  titleContainer.paddingBottom = _baseSize;
+  titleContainer.paddingLeft = _baseSize;
+  titleContainer.paddingRight = _baseSize;
+  titleContainer.strokes = [
+    {
+      type: "SOLID",
+      color: hexToRgb("#aaa"),
+    },
+  ];
+  titleContainer.strokeBottomWeight = 1;
+
+  titleContainer.appendChild(title);
+
+  const countText = figma.createText();
+  countText.characters = `${count}`;
+  countText.fontSize = 18;
+  countText.fontName = _fontBold;
+  titleContainer.appendChild(countText);
+  title.layoutSizingHorizontal = "FILL";
+
+  return titleContainer;
 };
 
 const runReport = async () => {
@@ -257,13 +309,13 @@ const runReport = async () => {
     container.layoutMode = "VERTICAL";
     container.layoutAlign = "STRETCH";
     container.primaryAxisSizingMode = "AUTO";
-    container.counterAxisSizingMode = "AUTO";
+    container.counterAxisSizingMode = "FIXED";
     container.paddingTop = _baseSize * 2;
     container.paddingBottom = _baseSize * 2;
     container.paddingLeft = _baseSize * 2;
     container.paddingRight = _baseSize * 2;
-    container.itemSpacing = _baseSize;
     container.cornerRadius = 8;
+    container.minWidth = _containerWidth;
     container.fills = [
       {
         type: "SOLID",
@@ -271,45 +323,13 @@ const runReport = async () => {
       },
     ];
 
-    // add title
-    const title = await createTextRow(group, {
-      size: 18,
-      weight: "Semi Bold",
-      color: { r: 0, g: 0, b: 0 },
-    });
-
-    const titleContainer = figma.createFrame();
-    titleContainer.layoutMode = "HORIZONTAL";
-    titleContainer.layoutAlign = "STRETCH";
-    titleContainer.primaryAxisSizingMode = "FIXED";
-    titleContainer.counterAxisSizingMode = "AUTO";
-    titleContainer.paddingTop = _baseSize;
-    titleContainer.paddingBottom = _baseSize;
-    titleContainer.paddingLeft = _baseSize;
-    titleContainer.paddingRight = _baseSize;
-    titleContainer.strokes = [
-      {
-        type: "SOLID",
-        color: hexToRgb("#aaa"),
-      },
-    ];
-    titleContainer.strokeBottomWeight = 1;
-
-    titleContainer.appendChild(title);
-
-    const countText = await createTextRow(`${count}`, {
-      size: 18,
-      color: { r: 0, g: 0, b: 0 },
-    });
-    titleContainer.appendChild(countText);
-
-    container.appendChild(titleContainer);
-    title.layoutSizingHorizontal = "FILL";
+    container.appendChild(await addHeader({ title: group, count }));
 
     // add items
+    let isFirst = true;
     for (const node of orgMatches[group]) {
-      const line = await writeLine(node);
-      container.appendChild(line);
+      await writeLine({ node, isFirst, container });
+      isFirst = false;
     }
 
     reportContainer.appendChild(container);
@@ -382,6 +402,7 @@ const runReportPeople = async () => {
 
   Object.keys(authors).forEach((author) => {
     const authorContainer = figma.createFrame();
+    authorContainer.minWidth = _containerWidth;
     authorContainer.name = "People Report Author";
     authorContainer.layoutMode = "VERTICAL";
     authorContainer.primaryAxisSizingMode = "AUTO";
@@ -430,6 +451,7 @@ const runReportPeople = async () => {
 
     authorHeader.appendChild(text);
     authorHeader.appendChild(count);
+    text.layoutSizingHorizontal = "FILL";
 
     authorContainer.appendChild(authorHeader);
 
