@@ -48,6 +48,28 @@ const setAuthor = (user) => {
   return initials;
 };
 
+const findParent = (elem, parentType = "SECTION") => {
+  if (elem.type == parentType) {
+    return elem;
+  } else {
+    return findParent(elem.parent, parentType);
+  }
+};
+
+const getParentSection = (selected) => {
+  const output: SectionNode[] = [];
+
+  selected.map((s) => {
+    if (s.type === "SECTION") {
+      output.push(s);
+    } else {
+      output.push(findParent(s.parent));
+    }
+  });
+
+  return output;
+};
+
 const setTitle = ({ state }) => {
   // is 1 node at least selected?
   const selected = figma.currentPage.selection;
@@ -62,7 +84,9 @@ const setTitle = ({ state }) => {
     };
 
     // loop over selection
-    const selection = selected;
+    // if selection isn't a frame, check parents
+    const selection = getParentSection(selected);
+
     selection.map((selected) => {
       // let's make sure the name isn't erased. Let's extract it from the name
       const title = selected.name.split(/\] /gm);
