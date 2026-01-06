@@ -7,6 +7,7 @@ const _fontBold = {
 };
 
 const _frame = { width: 240, height: 400 };
+const _sectionPadding = 20;
 
 const hexToRgb = (hex) => {
   // Remove leading #
@@ -48,11 +49,31 @@ const setAuthor = (user) => {
   return initials;
 };
 
-const findParent = (elem, parentType = "SECTION") => {
+const findParent = (
+  elem,
+  parentType = "SECTION",
+  originElem = elem,
+  previousElem = elem
+) => {
   if (elem.type == parentType) {
     return elem;
+  } else if (elem.type == "PAGE") {
+    const section = figma.createSection();
+    section.x = originElem.x - _sectionPadding;
+    section.y = originElem.y - _sectionPadding;
+    section.resizeWithoutConstraints(
+      originElem.width + _sectionPadding * 2,
+      originElem.height + _sectionPadding * 2
+    );
+
+    figma.currentPage.appendChild(section);
+    section.appendChild(previousElem);
+    previousElem.x = _sectionPadding;
+    previousElem.y = _sectionPadding;
+
+    return section;
   } else {
-    return findParent(elem.parent, parentType);
+    return findParent(elem.parent, parentType, originElem, previousElem);
   }
 };
 
