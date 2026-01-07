@@ -49,21 +49,16 @@ const setAuthor = (user) => {
   return initials;
 };
 
-const findParent = (
-  elem,
-  parentType = "SECTION",
-  originElem = elem,
-  previousElem = elem
-) => {
+const findParent = (elem, parentType = "SECTION", previousElem = elem) => {
   if (elem.type == parentType) {
     return elem;
   } else if (elem.type == "PAGE") {
     const section = figma.createSection();
-    section.x = originElem.x - _sectionPadding;
-    section.y = originElem.y - _sectionPadding;
+    section.x = previousElem.x - _sectionPadding;
+    section.y = previousElem.y - _sectionPadding;
     section.resizeWithoutConstraints(
-      originElem.width + _sectionPadding * 2,
-      originElem.height + _sectionPadding * 2
+      previousElem.width + _sectionPadding * 2,
+      previousElem.height + _sectionPadding * 2
     );
 
     figma.currentPage.appendChild(section);
@@ -73,7 +68,7 @@ const findParent = (
 
     return section;
   } else {
-    return findParent(elem.parent, parentType, originElem, previousElem);
+    return findParent(elem.parent, parentType, elem);
   }
 };
 
@@ -84,7 +79,7 @@ const getParentSection = (selected) => {
     if (s.type === "SECTION") {
       output.push(s);
     } else {
-      output.push(findParent(s.parent));
+      output.push(findParent(s));
     }
   });
 
@@ -120,7 +115,7 @@ const setTitle = ({ state }) => {
 
     figma.notify(`${selection.length} now set to ${output.state}`);
   } else {
-    figma.notify("please select at least 1 object");
+    figma.notify("please select at least 1 section");
   }
 };
 
