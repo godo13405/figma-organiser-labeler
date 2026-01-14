@@ -1,13 +1,17 @@
 <style>
   :root {
     --color-active: #4bb9e5;
+    --color-white: #fff;
     --color-background: #eee;
     --color-background-light: #fff;
     --color-background-dark: #ccc;
     --color-border: #aaa;
     --color-delete: rgb(216, 63, 46);
+    --color-success: rgb(46, 160, 63);
+
     --border-radius: 0.4em;
     --nav-height: 2rem;
+    --switch-height: 1.4em;
   }
 
   html,
@@ -45,6 +49,8 @@
   .more-button {
     display: flex;
     align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
     padding: 0 0.2em;
   }
 
@@ -182,37 +188,98 @@
     font-size: 0.6em;
     padding: 0.6em;
   }
+
+  .workspace {
+    box-shadow: 0 4px 1em var(--color-background-dark);
+    border-radius: var(--border-radius);
+    background-color: var(--color-white);
+    padding: 0.6em;
+    margin-bottom: 1em;
+  }
+
+  input:where([type="checkbox"][role="switch"]) {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    position: relative;
+    font-size: inherit;
+    width: calc(var(--switch-height)*1.8);
+    height: var(--switch-height);
+    border: 1px solid var(--color-background);
+    border-radius: 1em;
+    margin: auto 0.2em 0.1em auto;
+    vertical-align: text-bottom;
+    color: inherit;
+    background-color: var(--color-border);
+    transition: background-color 0.1s ease-out;
+  }
+  input:where([type="checkbox"][role="switch"])::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(0, -50%);
+    box-sizing: border-box;
+    width: calc(var(--switch-height)*.7);
+    height: calc(var(--switch-height)*.7);
+    margin: 0 0.15em;
+    border-radius: 50%;
+    background: var(--color-white);
+    box-shadow: 0 1px .4em var(--color-background-dark);
+    transition: left 0.1s ease-out;
+  }
+  input:where([type="checkbox"][role="switch"]):checked {
+    background-color: var(--color-success);
+  }
+  input:where([type="checkbox"][role="switch"]):checked::before {
+    left: 1em;
+  }
+  input:where([type="checkbox"][role="switch"]):checked + .sentence-negative {
+    display: none;
+  }
+
 </style>
-<!--
 <nav class="tabsContainer">
   <div class="tabsInnerContainer">
     <a class="tab assign-target" id="assign">Assign</a>
     <a class="tab config-target" id="config">Configure</a>
   </div>
 
-  <a class="more-button" id="context-menu" onClick="toggleContextMenu()"
-    ><svg
-      xmlns="http://www.w3.org/2000/svg"
-      height="20px"
-      viewBox="0 -960 960 960"
-      width="20px"
-      fill="#000000"
-    >
-      <path
-        d="M479.79-192Q450-192 429-213.21t-21-51Q408-294 429.21-315t51-21Q510-336 531-314.79t21 51Q552-234 530.79-213t-51 21Zm0-216Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Zm0-216Q450-624 429-645.21t-21-51Q408-726 429.21-747t51-21Q510-768 531-746.79t21 51Q552-666 530.79-645t-51 21Z"
-      /></svg
-  ></a>
+  <a class="more-button" id="context-menu" onClick="toggleContextMenu()"><svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M479.79-192Q450-192 429-213.21t-21-51Q408-294 429.21-315t51-21Q510-336 531-314.79t21 51Q552-234 530.79-213t-51 21Zm0-216Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Zm0-216Q450-624 429-645.21t-21-51Q408-726 429.21-747t51-21Q510-768 531-746.79t21 51Q552-666 530.79-645t-51 21Z"/></svg></a>
 </nav>
 <ul class="context-menu" id="context-menu">
   <li><a class="context-option" onClick="resetOptions()">Reset Statuses</a></li>
 </ul>
--->
 <main class="content-container assign-target" id="assign-content">
   <p class="notification"></p>
   <ul class="listicle" id="status-apply"></ul>
 </main>
-<!--
 <main class="content-container config-target" id="config-content">
+  <div class="workspace">
+    <p>Report Options</p>
+    <p>
+      <label for="report-option-name"
+        ><input
+          type="checkbox"
+          role="switch"
+          class="switch"
+          id="report-option-name"
+          onchange="reportOption('name',this.checked)"
+        />Names <span class="sentence-negative">not </span>shown</label
+      >
+    </p>
+    <p>
+      <label for="report-option-date"
+        ><input
+          type="checkbox"
+          role="switch"
+          class="switch"
+          id="report-option-date"
+          onchange="reportOption('date', this.checked)"
+        />Dates <span class="sentence-negative">not </span>shown</label
+      >
+    </p>
+  </div>
   <ul class="listicle" id="status-edit"></ul>
   <div class="actions-container" id="context-menu">
     <button class="action-button secondary" onClick="addStatus()">
@@ -221,7 +288,6 @@
     <button class="action-button" onClick="saveChanges()">Save Changes</button>
   </div>
 </main>
--->
 <script>
   // vars before anything
   let statusKeyTracker = 0;
@@ -304,8 +370,11 @@
     );
   };
 
-  const assignList = (options) => {
-    options.map((option, k) => {
+  const assignList = (options = document.options) => {
+    document.querySelector("#report-option-name").checked = document.options.config.name;
+    document.querySelector("#report-option-date").checked = document.options.config.date;
+
+    options.statuses.map((option, k) => {
       // add options to select
       const elem = document.createElement("button");
       elem.textContent = `${option.marker} ${option.label}`;
@@ -316,10 +385,19 @@
           "*"
         );
       document.querySelector("#status-apply").appendChild(elem);
-
       // add options to configure
       // addStatus(option);
     });
+  };
+
+  const reportOption = (option, value) => {
+    
+    document.options.config[option] = value;
+
+    parent.postMessage(
+      { pluginMessage: { fn: "reportOption", options: document.options } },
+      "*"
+    );
   };
 
   const updateSelection = (selection = []) => {
@@ -339,7 +417,7 @@
   let selection;
 
   // get options from code.js
-  let options = [];
+  document.options = {};
   window.onmessage = (event) => {
     const msg = event.data.pluginMessage;
 
@@ -363,7 +441,8 @@
         updateSelection(event.data.pluginMessage.options);
         break;
       case "options":
-        assignList(msg.options);
+        document.options = msg.options;
+        assignList();
         break;
     }
   };
