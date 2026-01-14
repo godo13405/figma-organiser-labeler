@@ -395,7 +395,7 @@
     document.options.config[option] = value;
 
     parent.postMessage(
-      { pluginMessage: { fn: "reportOption", options: JSON.stringify(document.options) } },
+      { pluginMessage: { fn: "reportOption", options: document.options } },
       "*"
     );
   };
@@ -441,7 +441,7 @@
         updateSelection(event.data.pluginMessage.options);
         break;
       case "options":
-        document.options = JSON.parse(msg.options);
+        document.options = msg.options;
         assignList();
         break;
     }
