@@ -541,14 +541,27 @@ const runReportPeople = async () => {
 };
 
 const findStatus = (statName) => {
-  const out = options.filter(({ label }) => label == statName);
+  const out = options.statuses.filter(({ label }) => label == statName);
 
   if (out.length) {
     return out[0];
   }
 };
 
-const optionsDefault = [
+interface Options {
+  statuses: Array<{
+    label: string;
+    marker: string;
+    color: string;
+  }>;
+  config: {
+    name: boolean;
+    date: boolean;
+  };
+}
+
+const optionsDefault = {
+  "statuses": [
   {
     label: "Done",
     marker: "🟢",
@@ -588,24 +601,29 @@ const optionsDefault = [
     label: "Blocked",
     marker: "🔴",
     color: "#EC0000",
-  },
-];
+  }],
+  config: {
+    "name": true,
+    "date": false
+  }
+} as Options;
 
-const getOptions = (option = optionsDefault) => {
-  // check for previously saved options
-  const _options = []; // JSON.parse(figma.root.getPluginData("options"));
-
-  // if an empty array is passed, reset options to this function's default
-  if (!option.length) {
+const getOptions = ({option = optionsDefault, clear = false}:{option?: Options, clear?: boolean} ={}) => {
+  // if a falsy is passed, reset options to this function's default
+  if (clear) {
     option = optionsDefault;
     figma.notify("Statuses reset to default");
-  } else if (_options && _options.length) {
-    option = _options;
+  } else {
+    option = JSON.parse(figma.root.getPluginData("options"));
   }
 
   // update stored satuses
   figma.root.setPluginData("options", JSON.stringify(option));
   return option;
+};
+
+const setOptions = (options: Options) => {
+  figma.root.setPluginData("options", JSON.stringify(options));
 };
 
 const figmaCommand = (command) => {
@@ -683,13 +701,18 @@ figma.ui.onmessage = ({
       figmaCommand(figma.command);
       break;
     case "resetOptions":
-      options = getOptions([]);
+      options = getOptions({ clear: true });
       figmaCommand(figma.command);
       break;
     case "saveChanges":
       figma.root.setPluginData("options", JSON.stringify(options));
       figmaCommand(figma.command);
       figma.notify(`Changes saved`);
+      break;
+    case "reportOption":
+      setOptions(options);
+      options = getOptions();
+      figma.notify(`Report option set`);
       break;
     default:
       setTitle({ state });
