@@ -316,11 +316,23 @@
     });
   };
 
+  const checkEmoji = (str) => {
+    const emojiRegex =
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+    return emojiRegex.test(str);
+  };
+
   const addStatus = (option, key = `status-edit-${statusKeyTracker}`) => {
     const markerInput = document.createElement("input");
     markerInput.value = option ? option.marker : "";
     markerInput.min = 1;
     markerInput.max = 1;
+    markerInput.onchange = (e) => {
+      if (!checkEmoji(e.target.value)) {
+        alert("Please enter a valid emoji as marker.");
+        e.target.value = "";
+      }
+    };
     markerInput.classList.add("status-edit-marker");
 
     const labelInput = document.createElement("input");
