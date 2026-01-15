@@ -154,7 +154,9 @@
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
     border: 1px solid var(--color-border);
     border-left-width: 0;
-    background-color: var(--color-background-dark);
+    background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNMjgwLTEyMHEtMzMgMC01Ni41LTIzLjVUMjAwLTIwMHYtNTIwaC00MHYtODBoMjAwdi00MGgyNDB2NDBoMjAwdjgwaC00MHY1MjBxMCAzMy0yMy41IDU2LjVUNjgwLTEyMEgyODBabTQwMC02MDBIMjgwdjUyMGg0MDB2LTUyMFpNMzYwLTI4MGg4MHYtMzYwaC04MHYzNjBabTE2MCAwaDgwdi0zNjBoLTgwdjM2MFpNMjgwLTcyMHY1MjAtNTIwWiIvPjwvc3ZnPg==') no-repeat center center var(--color-background-dark);
+    background-size: 1em;
+    min-width: 1.4em;
   }
 
   .context-menu {
@@ -326,7 +328,6 @@
     labelInput.classList.add("status-edit-label");
 
     const deleteButton = document.createElement("button");
-    deleteButton.innerText = "X";
     deleteButton.title = "delete";
     deleteButton.classList.add("status-delete");
 
@@ -363,16 +364,24 @@
       }
     });
 
+    // pass changes to global options
+    document.options.statuses = _options;
+
     // save changes
     parent.postMessage(
-      { pluginMessage: { fn: "saveChanges", options: _options } },
+      { pluginMessage: { fn: "saveChanges", options: document.options } },
       "*"
     );
   };
 
   const assignList = (options = document.options) => {
+    // match report options
     document.querySelector("#report-option-name").checked = document.options.config.name;
     document.querySelector("#report-option-date").checked = document.options.config.date;
+
+    // clear existing lists
+    document.querySelector("#status-edit").innerHTML = "";
+    document.querySelector("#status-apply").innerHTML = "";
 
     options.statuses.map((option, k) => {
       // add options to select
@@ -385,8 +394,9 @@
           "*"
         );
       document.querySelector("#status-apply").appendChild(elem);
+      
       // add options to configure
-      // addStatus(option);
+      addStatus(option);
     });
   };
 

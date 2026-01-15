@@ -1,5 +1,5 @@
 const _baseSize = 8;
-const _containerWidth = 300;
+const _containerWidth = 360;
 const _font = { family: "Inter", style: "Regular" };
 const _fontBold = {
 	family: "Inter",
@@ -45,7 +45,7 @@ const setMetadata = (user) => {
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ];
-  const dateModified = `${today.getDate().toString()} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+  const dateModified = `${today.getDate().toString()} ${monthNames[today.getMonth()]} ${today.getFullYear()} ${today.getHours().toString()}:${today.getMinutes().toString()}`;
 	selected.forEach((node) => {
 		node.setPluginData("authorFullName", user);
 		node.setPluginData("authorInitials", initials);
@@ -145,7 +145,7 @@ const writeLine = async ({ node, isFirst, container }) => {
 	line.paddingBottom = _baseSize;
 	line.paddingLeft = _baseSize;
 	line.paddingRight = _baseSize;
-	line.itemSpacing = 0;
+	line.itemSpacing = _baseSize/2;
 
 	// border
 	line.strokes = [{ type: "SOLID", color: _color.background }];
@@ -165,11 +165,11 @@ const writeLine = async ({ node, isFirst, container }) => {
 	const metadataLine = `${
 		options.config.name && node.getPluginData("authorFullName")
 			? `by ${node.getPluginData("authorFullName")} `
-			: "Unknown author"
+			: ""
 	}${
 		options.config.date && node.getPluginData("dateModified")
 			? `on ${node.getPluginData("dateModified")}`
-			: "Unknown date"
+			: ""
 	}`.trim();
 
 	if (metadataLine.length) {
@@ -719,9 +719,15 @@ figma.ui.onmessage = ({
 			figmaCommand(figma.command);
 			break;
 		case "saveChanges":
-			figma.root.setPluginData("options", JSON.stringify(options));
+			setOptions(options);
 			figmaCommand(figma.command);
 			figma.notify(`Changes saved`);
+
+			// pass the options back to the UI
+			figma.ui.postMessage({
+				type: "options",
+				options,
+			});
 			break;
 		case "reportOption":
 			setOptions(options);
