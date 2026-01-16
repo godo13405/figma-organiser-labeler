@@ -24,6 +24,10 @@
     background-color: var(--color-background);
   }
 
+  svg {
+    pointer-events: none;
+  }
+
   .tabsContainer {
     display: flex;
     flex-direction: row;
@@ -240,25 +244,38 @@
     display: none;
   }
 
+  .workspace h3 {
+    margin: 0;
+  }
+
 </style>
 <nav class="tabsContainer">
   <div class="tabsInnerContainer">
     <a class="tab assign-target" id="assign">Assign</a>
-    <a class="tab config-target" id="config">Configure</a>
+    <a class="tab edit-target" id="edit">Edit</a>
+    <a class="tab config-target" id="config">Config</a>
   </div>
 
-  <a class="more-button" id="context-menu" onClick="toggleContextMenu()"><svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M479.79-192Q450-192 429-213.21t-21-51Q408-294 429.21-315t51-21Q510-336 531-314.79t21 51Q552-234 530.79-213t-51 21Zm0-216Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Zm0-216Q450-624 429-645.21t-21-51Q408-726 429.21-747t51-21Q510-768 531-746.79t21 51Q552-666 530.79-645t-51 21Z"/></svg></a>
+  <a class="tab more-button help-target" id="help">
+    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-240q20 0 34-14t14-34q0-20-14-34t-34-14q-20 0-34 14t-14 34q0 20 14 34t34 14Zm-36-153h73q0-37 6.5-52.5T555-485q35-34 48.5-58t13.5-53q0-55-37.5-89.5T484-720q-51 0-88.5 27T343-620l65 27q9-28 28.5-43.5T482-652q28 0 46 16t18 42q0 23-15.5 41T496-518q-35 32-43.5 52.5T444-393Zm36 297q-79 0-149-30t-122.5-82.5Q156-261 126-331T96-480q0-80 30-149.5t82.5-122Q261-804 331-834t149-30q80 0 149.5 30t122 82.5Q804-699 834-629.5T864-480q0 79-30 149t-82.5 122.5Q699-156 629.5-126T480-96Zm0-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-312Z"/></svg>
+  </a>
 </nav>
-<ul class="context-menu" id="context-menu">
-  <li><a class="context-option" onClick="resetOptions()">Reset Statuses</a></li>
-</ul>
 <main class="content-container assign-target" id="assign-content">
   <p class="notification"></p>
   <ul class="listicle" id="status-apply"></ul>
 </main>
+<main class="content-container edit-target" id="edit-content">
+  <ul class="listicle" id="status-edit"></ul>
+  <div class="actions-container" id="edit-menu">
+    <button class="action-button secondary" onClick="addStatus()">
+      Add Status
+    </button>
+    <button class="action-button" onClick="saveChanges()">Save Changes</button>
+  </div>
+</main>
 <main class="content-container config-target" id="config-content">
   <div class="workspace">
-    <p>Report Options</p>
+    <H3>Report Options</H3>
     <p>
       <label for="report-option-name"
         ><input
@@ -282,14 +299,14 @@
       >
     </p>
   </div>
-  <ul class="listicle" id="status-edit"></ul>
-  <div class="actions-container" id="context-menu">
-    <button class="action-button secondary" onClick="addStatus()">
-      Add Status
-    </button>
-    <button class="action-button" onClick="saveChanges()">Save Changes</button>
-  </div>
 </main>
+<main class="content-container help-target" id="help-content">
+  <div class="workspace">
+    <h3>Help</h3>
+    <p>This Plugin is meant to help organise your and your team’s work, by grouping elements in Sections, and assigning them statuses.</p>
+    <p>You can also run reports to check the progress, and report to stakeholders.</p>
+  </div>
+  </main>
 <script>
   // vars before anything
   let statusKeyTracker = 0;
@@ -308,12 +325,6 @@
 
   const resetOptions = () => {
     parent.postMessage({ pluginMessage: { fn: "resetOptions" } }, "*");
-  };
-
-  const toggleContextMenu = () => {
-    document.querySelectorAll("#context-menu").forEach((elem) => {
-      elem.classList.toggle("active");
-    });
   };
 
   const checkEmoji = (str) => {
@@ -454,9 +465,7 @@
 
         // assign event listener to tabs
         document.querySelectorAll(".tab").forEach((tab) => {
-          tab.addEventListener("click", (e) =>
-            tabClick(e.target.id.toLowerCase())
-          );
+          tab.addEventListener("click", (e) => tabClick(e.target.id.toLowerCase()));
         });
         break;
       case "selection":

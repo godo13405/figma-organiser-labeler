@@ -22,6 +22,11 @@
       "command": "config"
     },
     {
+      "name": "Help",
+      "command": "help"
+    },
+    {"separator": true},
+    {
       "name": "Run Stauts Report",
       "command": "report"
     },
@@ -29,6 +34,7 @@
       "name": "Run People Report",
       "command": "report-people"
     },
+    {"separator": true},
     {
       "name": "To Do",
       "command": "setStateTo-Do"

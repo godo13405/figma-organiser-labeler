@@ -644,6 +644,8 @@ const figmaCommand = (command) => {
 	switch (command) {
 		case "config":
 		case "assign":
+		case "edit":
+		case "help":
 			figma.showUI(__html__, { width: _frame.width, height: _frame.height });
 			// fire initial selection logic
 			figma.ui.postMessage({
