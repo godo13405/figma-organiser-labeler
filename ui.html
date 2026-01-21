@@ -171,9 +171,14 @@
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
     border: 1px solid var(--color-border);
     border-left-width: 0;
-    background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNMjgwLTEyMHEtMzMgMC01Ni41LTIzLjVUMjAwLTIwMHYtNTIwaC00MHYtODBoMjAwdi00MGgyNDB2NDBoMjAwdjgwaC00MHY1MjBxMCAzMy0yMy41IDU2LjVUNjgwLTEyMEgyODBabTQwMC02MDBIMjgwdjUyMGg0MDB2LTUyMFpNMzYwLTI4MGg4MHYtMzYwaC04MHYzNjBabTE2MCAwaDgwdi0zNjBoLTgwdjM2MFpNMjgwLTcyMHY1MjAtNTIwWiIvPjwvc3ZnPg==') no-repeat center center var(--color-background-dark);
+    background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjMDAwMDAwIj48cGF0aCBkPSJNMjgwLTEyMHEtMzMgMC01Ni41LTIzLjVUMjAwLTIwMHYtNTIwaC00MHYtODBoMjAwdi00MGgyNDB2NDBoMjAwdjgwaC00MHY1MjBxMCAzMy0yMy41IDU2LjVUNjgwLTEyMEgyODBabTQwMC02MDBIMjgwdjUyMGg0MDB2LTUyMFpNMzYwLTI4MGg4MHYtMzYwaC04MHYzNjBabTE2MCAwaDgwdi0zNjBoLTgwdjM2MFpNMjgwLTcyMHY1MjAtNTIwWiIvPjwvc3ZnPg==') no-repeat center center;
     background-size: 1em;
-    min-width: 1.4em;
+    min-width: 2em;
+    transition: background-color .2s ease-out
+  }
+
+  .status-delete:hover {
+    background-color: var(--color-background-dark)
   }
 
   .context-menu {
@@ -226,6 +231,9 @@
     background-color: var(--color-white);
     padding: 0.6em;
     margin-bottom: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   input:where([type="checkbox"][role="switch"]) {
@@ -269,8 +277,38 @@
     display: none;
   }
 
+  .workspace .header-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    height: 2em;
+  }
+
+  .workspace .action-button {
+    min-width: 0;
+    max-width: 3em;
+  }
+
+
+  .workspace .action-button svg {
+    fill: var(--color-active)
+  }
+
   .workspace h3 {
     margin: 0;
+  }
+
+  .workspace hr {
+    width: 100%;
+  }
+
+  .workspace label {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+    padding: .6em 0;
   }
 
 </style>
@@ -303,8 +341,12 @@
 </main>
 <main class="content-container config-target" id="config-content">
   <div class="workspace">
-    <H3>Report Options</H3>
-    <p>
+    <span class="header-container">
+      <H3>Report Options</H3>
+      <button class="action-button secondary" onClick="exportTo({type: 'csv'})">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>
+      </button>
+    </span>
       <label for="report-option-name"
         ><input
           type="checkbox"
@@ -314,8 +356,6 @@
           onchange="reportOption('name',this.checked)"
         />Names</label
       >
-    </p>
-    <p>
       <label for="report-option-date"
         ><input
           type="checkbox"
@@ -325,9 +365,7 @@
           onchange="reportOption('date', this.checked)"
         />Dates</label
       >
-    </p>
     <hr />
-    <p>
       <label for="report-option-lastmodified"
         ><input
           type="checkbox"
@@ -335,9 +373,8 @@
           class="switch"
           id="report-option-lastmodified"
           onchange="reportOption('lastmodified', this.checked)"
-        />Report ran on</label
+        />Report ran on date</label
       >
-    </p>
   </div>
 </main>
 <main class="content-container help-target" id="help-content">
@@ -489,6 +526,33 @@
       elems.forEach((e) => e.classList.add("active"));
     }
   };
+ 
+  const exportTo = ({type = "csv"}) => {
+    parent.postMessage(
+      { pluginMessage: { fn: "exportTo", options: type } },
+      "*"
+    );
+  }
+
+  const download = ({data, name = "Status Report"}) => {
+    // Create a Blob with the CSV data and type
+    const blob = new Blob([data], { type: 'text/csv' });
+    
+    // Create a URL for the Blob
+    const url = URL.createObjectURL(blob);
+    
+    // Create an anchor tag for downloading
+    const a = document.createElement('a');
+    
+    // Set the URL and download attribute of the anchor tag
+    a.href = url;
+    a.download = `${name}.csv`;
+    
+    // Trigger the download by clicking the anchor tag
+    a.click();
+}
+ 
+ 
   // stay up to date with selection
   let selection;
 
@@ -517,6 +581,9 @@
       case "options":
         document.options = msg.options;
         assignList();
+        break;
+      case "export":
+        download({data: msg.options});
         break;
     }
   };

@@ -4,6 +4,7 @@
   "api": "1.0.0",
   "main": "code.js",
   "capabilities": [],
+  "enablePrivatePluginApi": true,
   "enableProposedApi": false,
   "documentAccess": "dynamic-page",
   "editorType": ["figma"],
@@ -73,6 +74,10 @@
     {
       "name": "📑 Run Stauts Report",
       "command": "report"
+    },
+    {
+      "name": "📥 Download Stauts Report",
+      "command": "exportTo"
     },
     {
       "name": "👥 Run People Report",
