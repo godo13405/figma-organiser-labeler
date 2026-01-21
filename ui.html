@@ -1,6 +1,6 @@
 <style>
   :root {
-    --color-active: #4bb9e5;
+    --color-active: #008CCF;
     --color-white: #fff;
     --color-background: #eee;
     --color-background-light: #fff;
@@ -81,23 +81,36 @@
   .actions-container {
     display: flex;
     flex-direction: row;
-    gap: 0.8em;
+    flex-wrap: wrap;
+    gap: 0.4em;
     margin-top: 1em;
   }
 
   .action-button {
     cursor: pointer;
     background-color: var(--color-active);
-    color: var(--color-background-light);
+    color: var(--color-white);
     padding: 0.4em 0.6em;
     border-radius: var(--border-radius);
     border: 0;
+    flex: 1;
+    width: 100%;
+    min-width: 45%;
   }
 
   .action-button.secondary {
     background-color: transparent;
     border: 1px solid var(--color-active);
     color: var(--color-active);
+  }
+
+
+  .action-button.tertiary {
+    background-color: transparent;
+    border: 0;
+    color: var(--color-active);
+    max-width: 4em;
+    min-width: 0;
   }
 
   .listicle {
@@ -138,7 +151,7 @@
 
   #status-edit input {
     border: 1px solid #aaa;
-    padding: 0.2em 0.4em;
+    padding: 0.4em;
   }
 
   .status-edit-marker {
@@ -200,6 +213,11 @@
     font-size: 0.8em;
     padding: 0.8em;
     margin: 0;
+  }
+  .notification.active {
+    font-weight: 600;
+    background-color: var(--color-background-light);
+    color: var(--color-active)
   }
 
   .workspace {
@@ -274,6 +292,9 @@
 <main class="content-container edit-target" id="edit-content">
   <ul class="listicle" id="status-edit"></ul>
   <div class="actions-container" id="edit-menu">
+    <button class="action-button tertiary" onClick="resetOptions()">
+      Reset
+    </button>
     <button class="action-button secondary" onClick="addStatus()">
       Add Status
     </button>
@@ -291,7 +312,7 @@
           class="switch"
           id="report-option-name"
           onchange="reportOption('name',this.checked)"
-        />Names <span class="sentence-negative">not </span>shown</label
+        />Names</label
       >
     </p>
     <p>
@@ -302,7 +323,19 @@
           class="switch"
           id="report-option-date"
           onchange="reportOption('date', this.checked)"
-        />Dates <span class="sentence-negative">not </span>shown</label
+        />Dates</label
+      >
+    </p>
+    <hr />
+    <p>
+      <label for="report-option-lastmodified"
+        ><input
+          type="checkbox"
+          role="switch"
+          class="switch"
+          id="report-option-lastmodified"
+          onchange="reportOption('lastmodified', this.checked)"
+        />Report ran on</label
       >
     </p>
   </div>
@@ -408,6 +441,7 @@
     // match report options
     document.querySelector("#report-option-name").checked = document.options.config.name;
     document.querySelector("#report-option-date").checked = document.options.config.date;
+    document.querySelector("#report-option-lastmodified").checked = document.options.config.lastModified;
 
     // clear existing lists
     document.querySelector("#status-edit").innerHTML = "";
@@ -444,10 +478,12 @@
     const notification = document.querySelector(".notification");
     const elems = document.querySelectorAll(".status-assign-button");
     if (!selection || !selection.length) {
-      notification.innerText = "Please select a Frame";
+      notification.classList.remove("active");
+      notification.innerText = "Please select a Section";
       elems.forEach((e) => e.classList.remove("active"));
     } else {
-      notification.innerText = `${selection.length} Frame${
+      notification.classList.add("active");
+      notification.innerText = `${selection.length} Section${
         selection.length > 1 ? "s" : ""
       } to rename`;
       elems.forEach((e) => e.classList.add("active"));

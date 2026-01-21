@@ -34,6 +34,96 @@ const _color = {
 	stroke: hexToRgb("#fff"),
 };
 
+
+interface Options {
+	statuses: Array<{
+		label: string;
+		marker: string;
+	}>;
+	config: {
+		name: boolean;
+		date: boolean;
+		lastModified: boolean;
+	};
+}
+
+const optionsDefault = {
+	statuses: [
+    {
+      "label": "To Do",
+	  "marker": "⚪"
+    },
+    {
+      "label": "Idea",
+	  "marker": "💡"
+    },
+    {
+      "label": "️Placeholder",
+	  "marker": "🏷"
+    },
+    {
+      "label": "️Blocked",
+	  "marker": "🔴"
+    },
+    {
+      "label": "In Progress",
+	  "marker": "🟡"
+    },
+    {
+      "label": "️Needs Review",
+	  "marker": "🟣"
+    },
+    {
+      "label": "️Ready to Dev",
+	  "marker": "💠"
+    },
+    {
+      "label": "️In Development",
+	  "marker": "💻"
+    },
+    {
+      "label": "️Milestone",
+	  "marker": "⛳"
+    },
+    {
+      "label": "️Ready to Launch",
+	  "marker": "🚀"
+    },
+    {
+      "label": "Design Review",
+	  "marker": "🎨"
+    },
+    {
+      "label": "Code Review",
+	  "marker": "👀"
+    },
+    {
+      "label": "In QA",
+	  "marker": "🚦"
+    },
+    {
+      "label": "Done",
+	  "marker": "🟢"
+    },
+	],
+	config: {
+		name: true,
+		date: false,
+		lastModified: true
+	},
+} as Options;
+
+const getDate = ({includeTime}) => {
+  const today = new Date();
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+ let output = `${today.getDate().toString()} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+
+if (includeTime) {
+  output += ` ${today.getHours().toString()}:${today.getMinutes().toString()}`;
+}
+ return output;
+}
+
 const setMetadata = (user) => {
 	const selected = figma.currentPage.selection;
 	// set initials
@@ -41,11 +131,7 @@ const setMetadata = (user) => {
 	const initials = `${user.match(initialsQ)[0]}${user.match(initialsQ)[1]}`;
 
 	// set author data on selected
-  const today = new Date();
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-];
-  const dateModified = `${today.getDate().toString()} ${monthNames[today.getMonth()]} ${today.getFullYear()} ${today.getHours().toString()}:${today.getMinutes().toString()}`;
+  const dateModified = getDate({includeTime: true});
 	selected.forEach((node) => {
 		node.setPluginData("authorFullName", user);
 		node.setPluginData("authorInitials", initials);
@@ -231,7 +317,7 @@ const createTextRow = async (
 	node.characters = text;
 	node.fontSize = args.size;
 	node.fills = [{ type: "SOLID", color: args.color }];
-	node.layoutAlign = "STRETCH";
+	// node.layoutAlign = "STRETCH";
 
 	return node;
 };
@@ -298,6 +384,7 @@ const runReport = async () => {
 	const headerContainer = figma.createFrame();
 	headerContainer.name = "Status Report Header";
 	headerContainer.layoutMode = "HORIZONTAL";
+	headerContainer.counterAxisAlignItems = "CENTER";
 	headerContainer.primaryAxisSizingMode = "AUTO";
 	headerContainer.counterAxisSizingMode = "AUTO";
 	headerContainer.itemSpacing = _baseSize;
@@ -308,8 +395,15 @@ const runReport = async () => {
 		size: 24,
 		weight: "Semi Bold",
 	});
-	reportTitle.layoutAlign = "MIN";
 	headerContainer.appendChild(reportTitle);
+
+	// set date last modified
+	if (options.config.lastModified) {
+		const reportLastModified = await createTextRow(` ran on ${getDate({includeTime: true})}`);
+		reportLastModified.opacity = 0.6;
+		headerContainer.appendChild(reportLastModified);
+	}
+
 
 	// find all sections
 	const NAME_REGEX = /^\{.*?\}\s\[[A-Z]{2}\]/;
@@ -557,67 +651,6 @@ const findStatus = (statName) => {
 		return out[0];
 	}
 };
-
-interface Options {
-	statuses: Array<{
-		label: string;
-		marker: string;
-		color: string;
-	}>;
-	config: {
-		name: boolean;
-		date: boolean;
-	};
-}
-
-const optionsDefault = {
-	statuses: [
-		{
-			label: "Done",
-			marker: "🟢",
-			color: "#00C200",
-		},
-		{
-			label: "To Do",
-			marker: "⚪️",
-			color: "#fafafa",
-		},
-		{
-			label: "In Progress",
-			marker: "🟡",
-			color: "#FFD700",
-		},
-		{
-			label: "Design Review",
-			marker: "🎨",
-			color: "#E79800",
-		},
-		{
-			label: "Code Review",
-			marker: "💠",
-			color: "#4a90dfff",
-		},
-		{
-			label: "Placeholder",
-			marker: "🪧",
-			color: "#bbb",
-		},
-		{
-			label: "QA",
-			marker: "🔎",
-			color: "#555",
-		},
-		{
-			label: "Blocked",
-			marker: "🔴",
-			color: "#EC0000",
-		},
-	],
-	config: {
-		name: true,
-		date: false,
-	},
-} as Options;
 
 const getOptions = ({
 	option = optionsDefault,

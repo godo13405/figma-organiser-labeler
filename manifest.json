@@ -14,58 +14,82 @@
   "permissions": ["currentuser"],
   "menu": [
     {
-      "name": "Assign Status",
-      "command": "assign"
+      "name": "⚪ To Do",
+      "command": "setStateTo-Do"
     },
     {
-      "name": "Configure",
-      "command": "config"
+      "name": "💡 Idea",
+      "command": "setStateIdea"
     },
     {
-      "name": "Help",
-      "command": "help"
+      "name": "️🏷 Placeholder",
+      "command": "setStatePlaceholder"
+    },
+    {
+      "name": "️🔴 Blocked",
+      "command": "setStateBlocked"
+    },
+    {
+      "name": "🟡 In Progress",
+      "command": "setStateIn-Progress"
+    },
+    {
+      "name": "️🟣 Needs Review",
+      "command": "setStateNeeds-Review"
+    },
+    {
+      "name": "️💠 Ready to Dev",
+      "command": "setStateReady-to-Dev"
+    },
+    {
+      "name": "️💻 In Development",
+      "command": "setStateIn-Development"
+    },
+    {
+      "name": "️⛳ Milestone",
+      "command": "setStateMilestone"
+    },
+    {
+      "name": "️🚀 Ready to Launch",
+      "command": "setStateReady-to-Launch"
+    },
+    {
+      "name": "🎨 Design Review",
+      "command": "setStateDesign-Review"
+    },
+    {
+      "name": "👀 Code Review",
+      "command": "setStateCode-Review"
+    },
+    {
+      "name": "🚦 In QA",
+      "command": "setStateIn-QA"
+    },
+    {
+      "name": "🟢 Done",
+      "command": "setStateDone"
     },
     {"separator": true},
     {
-      "name": "Run Stauts Report",
+      "name": "📑 Run Stauts Report",
       "command": "report"
     },
     {
-      "name": "Run People Report",
+      "name": "👥 Run People Report",
       "command": "report-people"
     },
     {"separator": true},
     {
-      "name": "To Do",
-      "command": "setStateTo-Do"
+      "name": "🪄 Assign Status",
+      "command": "assign"
     },
     {
-      "name": "Done",
-      "command": "setStateDone"
+      "name": "✏️ Edit Statuses",
+      "command": "edit"
     },
     {
-      "name": "In Progress",
-      "command": "setStateIn-Progress"
-    },
-    {
-      "name": "Design Review",
-      "command": "setStateDesign-Review"
-    },
-    {
-      "name": "Code Review",
-      "command": "setStateCode-Review"
-    },
-    {
-      "name": "Placeholder",
-      "command": "setStatePlaceholder"
-    },
-    {
-      "name": "QA",
-      "command": "setStateQA"
-    },
-    {
-      "name": "In Progress",
-      "command": "setStateIn-Progress"
+      "name": "🛠️ Configure",
+      "command": "config"
     }
   ]
 }
