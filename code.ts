@@ -221,7 +221,7 @@ const updateReportLine = async ({node}) => {
 				containerNode.children.forEach((child) => child.remove());
 				updated.children.forEach((child) => {
 					containerNode.appendChild(child);
-				}
+				});
 			}
 		} else {
 			console.log("No report item to update")
@@ -469,7 +469,7 @@ const runReport = async () => {
 	const NAME_REGEX = /^\{.*?\}\s\[[A-Z]{2}\]/;
 	const matches = figma.currentPage.findChildren((node) => {
 		return node.type === "SECTION" && NAME_REGEX.test(node.name);
-	});
+	}).sort((a, b) => a.name.localeCompare(b.name));
 
 	// go over each match and distribute by status
 	const orgMatches = {};
