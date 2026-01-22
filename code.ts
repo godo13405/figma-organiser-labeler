@@ -73,6 +73,14 @@ const optionsDefault = {
 	  "marker": "🔴"
     },
     {
+      "label": "In Research",
+	  "marker": "🔬"
+    },
+    {
+      "label": "Researched",
+	  "marker": "📬"
+    },
+    {
       "label": "In Progress",
 	  "marker": "🟡"
     },

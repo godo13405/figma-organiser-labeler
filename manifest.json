@@ -31,6 +31,14 @@
       "command": "setStateBlocked"
     },
     {
+      "name": "️🔬 In Research",
+      "command": "setStateIn-Research"
+    },
+    {
+      "name": "️📬 Researched",
+      "command": "setStateResearched"
+    },
+    {
       "name": "🟡 In Progress",
       "command": "setStateIn-Progress"
     },
