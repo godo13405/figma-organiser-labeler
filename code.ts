@@ -210,8 +210,19 @@ const updateReportLine = async ({node}) => {
 		}) as FrameNode;
 
 		if (containerNode) {
-			await writeLine({ node, isFirst: false, container: containerNode.parent });
-			containerNode.remove();
+			const updated = await writeLine({
+				node,
+				isFirst: false,
+				container: containerNode.parent,
+				append: false,
+			});
+
+			if (updated) {
+				containerNode.children.forEach((child) => child.remove());
+				updated.children.forEach((child) => {
+					containerNode.appendChild(child);
+				}
+			}
 		} else {
 			console.log("No report item to update")
 		}
@@ -282,7 +293,7 @@ const setMetadataLine = (node) => {
 	return output ? output.trim() : "";
 }
 
-const writeLine = async ({ node, isFirst, container }) => {
+const writeLine = async ({ node, isFirst, container, append = true }) => {
 	const line = figma.createFrame() as FrameNode;
 
 	// ✅ Enable Auto Layout
@@ -323,9 +334,14 @@ const writeLine = async ({ node, isFirst, container }) => {
 		metadataNode.opacity = 0.6;
 
 		line.appendChild(metadataNode);
+
+		if (append) {
 		container.appendChild(line);
 		
 		line.layoutSizingHorizontal = "FILL";
+		} else {
+			return line;
+		}
 	}
 };
 
