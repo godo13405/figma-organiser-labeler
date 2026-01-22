@@ -1,9 +1,17 @@
 const _baseSize = 8;
 const _containerWidth = 360;
-const _font = { family: "Inter", style: "Regular" };
-const _fontBold = {
-	family: "Inter",
-	style: "Semi Bold",
+const _font = {
+	default: { family: "Inter", size: 16, style: "Regular" },
+	bold: {
+		family: "Inter",
+		size: 16,
+		style: "Semi Bold",
+	},
+	header: {
+		family: "Inter",
+		size: 24,
+		style: "Semi Bold",
+	},
 };
 
 const _frame = { width: 240, height: 400 };
@@ -33,7 +41,6 @@ const _color = {
 	background: hexToRgb("#eee"),
 	stroke: hexToRgb("#fff"),
 };
-
 
 interface Options {
 	statuses: Array<{
@@ -116,10 +123,20 @@ const optionsDefault = {
 const getDate = ({includeTime}) => {
   const today = new Date();
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
- let output = `${today.getDate().toString()} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+
+  let dateDay = today.getDate().toString();
+  if (dateDay.length == 1) { dateDay = `0${dateDay}`; }
+
+ let output = `${dateDay} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
 
 if (includeTime) {
-  output += ` ${today.getHours().toString()}:${today.getMinutes().toString()}`;
+  let dateHours = today.getHours().toString();
+  if (dateHours.length == 1) { dateHours = `0${dateHours}`; }
+
+  let dateMinutes = today.getMinutes().toString();
+  if (dateMinutes.length == 1) { dateMinutes = `0${dateMinutes}`; }
+
+  output += ` ${dateHours}:${dateMinutes}`;
 }
  return output;
 }
@@ -178,6 +195,31 @@ const getParentSection = (selected) => {
 	return output;
 };
 
+const updateReportLine = async ({node}) => {
+	// find the item to uppdate
+	let isFirst = true;
+	const statusReportContainer = figma.currentPage.findOne(n => n.name == "Status Report Container") as FrameNode;
+	// check if the report exists
+	if (statusReportContainer) {
+		const sectionName = node.name.replace(/^\{.*?\}\s\[[A-Z]{2}\]/g, "").trim();
+		const reportContainer = statusReportContainer?.findOne(n => n.name == "Report Container") as FrameNode;
+		const groupContainer = reportContainer?.findOne(n => n.name == node.name.match(/^\{.*?\}/g)![0].replace("{", "").replace("}", "")) as FrameNode;
+		const containerNode = groupContainer?.findOne((n) => {
+			if (isFirst) isFirst = false;
+			return n.name == sectionName
+		}) as FrameNode;
+
+		if (containerNode) {
+			await writeLine({ node, isFirst: false, container: containerNode.parent });
+			containerNode.remove();
+		} else {
+			console.log("No report item to update")
+		}
+	} else {
+		console.log("no report to update")
+	}
+}
+
 const setTitle = ({ state }) => {
 	// is 1 node at least selected?
 	const selected = figma.currentPage.selection;
@@ -203,12 +245,16 @@ const setTitle = ({ state }) => {
 			selected.name = `{${output.state}} [${output.author}] ${
 				titleArr || selected.name
 			}`;
+
+			// update line in report
+			updateReportLine({node: selected});
 		});
 
 		figma.notify(`${selection.length} now set to ${output.state}`);
 	} else {
 		figma.notify("please select at least 1 Section");
 	}
+	figma.closePlugin();
 };
 
 const getLink = (node) => {
@@ -220,8 +266,24 @@ const getLink = (node) => {
 	return output;
 };
 
+const setMetadataLine = (node) => {
+	const author = node.getPluginData("authorFullName");
+	const date = node.getPluginData("dateModified");
+	const output = `${
+		options.config.name && author
+			? `by ${author} `
+			: ""
+	}${
+		options.config.date && date
+			? `on ${date}`
+			: ""
+	}`;
+
+	return output ? output.trim() : "";
+}
+
 const writeLine = async ({ node, isFirst, container }) => {
-	const line = figma.createFrame();
+	const line = figma.createFrame() as FrameNode;
 
 	// ✅ Enable Auto Layout
 	line.layoutMode = "VERTICAL";
@@ -238,36 +300,31 @@ const writeLine = async ({ node, isFirst, container }) => {
 	// border
 	line.strokes = [{ type: "SOLID", color: _color.background }];
 	line.strokeWeight = 0;
-	if (!isFirst) line.strokeTopWeight = 1;
+	if (!isFirst) {
+		line.strokeTopWeight = 1;
+	}
 
 	// add selection name
 	const name = node.name.replace(/^\{.*?\}\s\[[A-Z]{2}\]/g, "").trim();
+	line.name = name;
 	const nameText = await createTextRow(name);
 	nameText.hyperlink = {
 		type: "URL",
-		value: getLink(line),
+		value: getLink(node),
 	};
 	line.appendChild(nameText);
-
+	
 	// add author name
-	const metadataLine = `${
-		options.config.name && node.getPluginData("authorFullName")
-			? `by ${node.getPluginData("authorFullName")} `
-			: ""
-	}${
-		options.config.date && node.getPluginData("dateModified")
-			? `on ${node.getPluginData("dateModified")}`
-			: ""
-	}`.trim();
+	const metadataLine = setMetadataLine(node);
 
 	if (metadataLine.length) {
-		line.appendChild(
-			await createTextRow(metadataLine, {
-				size: 12,
-				color: { r: 0.4, g: 0.4, b: 0.4 },
-			})
-		);
+		const metadataNode = await createTextRow(metadataLine, "default");
+		metadataNode.fontSize = 12;
+		metadataNode.opacity = 0.6;
+
+		line.appendChild(metadataNode);
 		container.appendChild(line);
+		
 		line.layoutSizingHorizontal = "FILL";
 	}
 };
@@ -303,23 +360,16 @@ const createFrame = () => {
 
 const createTextRow = async (
 	text,
-	args?: { color?: { r: number; g: number; b: number }; size?; weight? }
+	style?
 ) => {
-	if (!args) args = {};
-	if (!args.color) args.color = { r: 0, g: 0, b: 0 };
-	if (!args.size) args.size = 14;
-	if (!args.weight) args.weight = "Regular";
-	const node = figma.createText();
+	style = _font[style] || _font.default;
 
-	await figma.loadFontAsync({
-		family: "Inter",
-		style: args.weight,
-	});
+	const node = figma.createText() as TextNode;
 
+	// await figma.loadFontAsync({ family: style.family, style: style.style });
+	node.fontName = { family: style.family, style: style.style };
+	node.fontSize = style.size ? style.size : 16;
 	node.characters = text;
-	node.fontSize = args.size;
-	node.fills = [{ type: "SOLID", color: args.color }];
-	// node.layoutAlign = "STRETCH";
 
 	return node;
 };
@@ -332,11 +382,7 @@ const findExistingReport = (_name = "Status Report Container") => {
 
 const addHeader = async ({ title, count }) => {
 	// add title
-	title = await createTextRow(title, {
-		size: 18,
-		weight: "Semi Bold",
-		color: { r: 0, g: 0, b: 0 },
-	});
+	title = await createTextRow(title, "header");
 
 	const titleContainer = figma.createFrame();
 	titleContainer.layoutMode = "HORIZONTAL";
@@ -360,7 +406,7 @@ const addHeader = async ({ title, count }) => {
 	const countText = figma.createText();
 	countText.characters = `${count}`;
 	countText.fontSize = 18;
-	countText.fontName = _fontBold;
+	countText.fontName = { family: _font.bold.family, style: _font.bold.style };
 	titleContainer.appendChild(countText);
 	title.layoutSizingHorizontal = "FILL";
 
@@ -380,7 +426,7 @@ const runReport = async () => {
 	}
 
 	// ✅ Font must be loaded BEFORE setting characters
-	await figma.loadFontAsync(_font);
+	await figma.loadFontAsync({ family: _font.default.family, style: _font.default.style });
 
 	// create container for header
 	const headerContainer = figma.createFrame();
@@ -393,10 +439,7 @@ const runReport = async () => {
 	headerContainer.fills = [{ type: "SOLID", color: _color.background }];
 
 	// set report title
-	const reportTitle = await createTextRow("Status Report", {
-		size: 24,
-		weight: "Semi Bold",
-	});
+	const reportTitle = await createTextRow("Status Report", "header");
 	headerContainer.appendChild(reportTitle);
 
 	// set date last modified
@@ -455,6 +498,7 @@ const runReport = async () => {
 
 		// create group container
 		const container = figma.createFrame();
+		container.name = group;
 		container.layoutMode = "VERTICAL";
 		container.layoutAlign = "STRETCH";
 		container.primaryAxisSizingMode = "AUTO";
@@ -502,7 +546,7 @@ const runReportPeople = async () => {
 	}
 
 	// ✅ Font must be loaded BEFORE setting characters
-	await figma.loadFontAsync(_font);
+	await figma.loadFontAsync(_font.default);
 
 	// create container for header
 	const headerContainer = figma.createFrame();
@@ -514,10 +558,7 @@ const runReportPeople = async () => {
 	headerContainer.fills = [{ type: "SOLID", color: _color.background }];
 
 	// set report title
-	const reportTitle = await createTextRow("People Report", {
-		size: 24,
-		weight: "Semi Bold",
-	});
+	const reportTitle = await createTextRow("People Report", "header");
 	reportTitle.layoutAlign = "MIN";
 	headerContainer.appendChild(reportTitle);
 
@@ -595,7 +636,7 @@ const runReportPeople = async () => {
 
 		const count = figma.createText();
 		count.fontSize = 16;
-		count.fontName = _fontBold;
+		count.fontName = _font.bold;
 		count.characters = ` ${authorStatusCount}`;
 
 		authorHeader.appendChild(text);
@@ -633,7 +674,7 @@ const runReportPeople = async () => {
 
 			const statusCount = figma.createText();
 			statusCount.fontSize = 16;
-			statusCount.fontName = _fontBold;
+			statusCount.fontName = { family: _font.bold.family, style: _font.bold.style };
 			statusCount.characters = `${authors[author][status]}`;
 
 			authorStatus.appendChild(statusText);
@@ -774,39 +815,57 @@ figma.ui.onmessage = ({
 			label: "To Do",
 			marker: "⚪️",
 		};
-	switch (fn) {
-		case "reset":
-			figmaCommand(figma.command);
-			break;
-		case "resetOptions":
-			options = getOptions({ clear: true });
-			figmaCommand(figma.command);
-			break;
-		case "saveChanges":
-			setOptions(options);
-			figmaCommand(figma.command);
-			figma.notify(`Changes saved`);
+	Promise.all([
+		figma.loadFontAsync({ family: _font.default.family, style: _font.default.style }),
+		figma.loadFontAsync({ family: _font.bold.family, style: _font.bold.style }),
+		figma.loadFontAsync({ family: _font.header.family, style: _font.default.style }),
+	]).then((res) => {
+		switch (fn) {
+			case "reset":
+				figmaCommand(figma.command);
+				break;
+			case "resetOptions":
+				options = getOptions({ clear: true });
+				figmaCommand(figma.command);
+				break;
+			case "saveChanges":
+				setOptions(options);
+				figmaCommand(figma.command);
+				figma.notify(`Changes saved`);
 
-			// pass the options back to the UI
-			figma.ui.postMessage({
-				type: "options",
-				options,
-			});
-			break;
-		case "reportOption":
-			setOptions(options);
-			options = getOptions();
-			figma.notify(`Report option set`);
-			break;
-		case "exportTo":
-			exportTo({type: 'csv'});
-			break;
-		default:
-			setTitle({ state });
-			break;
-	}
+				// pass the options back to the UI
+				figma.ui.postMessage({
+					type: "options",
+					options,
+				});
+				break;
+			case "reportOption":
+				setOptions(options);
+				options = getOptions();
+				figma.notify(`Report option set`);
+				break;
+			case "exportTo":
+				exportTo({ type: "csv" });
+				break;
+			default:
+				setTitle({ state });
+				break;
+		}
+	});
 };
 
 if (figma.command) {
-	figmaCommand(figma.command);
+	Promise.all([
+		figma.loadFontAsync({
+			family: _font.default.family,
+			style: _font.default.style,
+		}),
+		figma.loadFontAsync({ family: _font.bold.family, style: _font.bold.style }),
+		figma.loadFontAsync({
+			family: _font.header.family,
+			style: _font.default.style,
+		}),
+	]).then((res) => {
+		figmaCommand(figma.command);
+	});
 }
