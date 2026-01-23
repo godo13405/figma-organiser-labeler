@@ -153,7 +153,8 @@ const setMetadata = (user) => {
 	const selected = figma.currentPage.selection;
 	// set initials
 	const initialsQ = new RegExp(/[A-Z]/, "g");
-	const initials = `${user.match(initialsQ)[0]}${user.match(initialsQ)[1]}`;
+	const initialsArr = user.match(initialsQ);
+	let initials = `${initialsArr[0]}${initialsArr.length > 1 ? initialsArr[initialsArr.length - 1] : ""}`;
 
 	// set author data on selected
   const dateModified = getDate({includeTime: true});
@@ -206,16 +207,16 @@ const getParentSection = (selected) => {
 const updateReportLine = async ({node}) => {
 	// find the item to uppdate
 	let isFirst = true;
-	const statusReportContainer = figma.currentPage.findOne(n => n.name == "Status Report Container") as FrameNode;
+	const statusReportContainer = figma.currentPage.findChildren(n => n.name == "Status Report Container")[0] as FrameNode;
 	// check if the report exists
 	if (statusReportContainer) {
 		const sectionName = node.name.replace(/^\{.*?\}\s\[[A-Z]{2}\]/g, "").trim();
-		const reportContainer = statusReportContainer?.findOne(n => n.name == "Report Container") as FrameNode;
-		const groupContainer = reportContainer?.findOne(n => n.name == node.name.match(/^\{.*?\}/g)![0].replace("{", "").replace("}", "")) as FrameNode;
-		const containerNode = groupContainer?.findOne((n) => {
+		const reportContainer = statusReportContainer?.findChildren(n => n.name == "Report Container")[0] as FrameNode;
+		const groupContainer = reportContainer?.findChildren(n => n.name == node.name.match(/^\{.*?\}/g)![0].replace("{", "").replace("}", ""))[0] as FrameNode;
+		const containerNode = groupContainer?.findChildren((n) => {
 			if (isFirst) isFirst = false;
 			return n.name == sectionName
-		}) as FrameNode;
+		})[0] as FrameNode;
 
 		if (containerNode) {
 			const updated = await writeLine({
@@ -240,12 +241,20 @@ const updateReportLine = async ({node}) => {
 }
 
 const setTitle = ({ state }) => {
+	// passing a valid state?
+	if (!state) {
+		figma.notify("Error: Invalid state passed");
+		figma.closePlugin();
+		return;
+	}
+
 	// is 1 node at least selected?
 	const selected = figma.currentPage.selection;
 	if (selected.length) {
-		if (state.length)
+		if (state.length) {
 			// only assign a single state
 			state = state[0];
+		}
 
 		const output = {
 			state: `${state.marker} ${state.label}`,
@@ -399,9 +408,9 @@ const createTextRow = async (
 };
 
 const findExistingReport = (_name = "Status Report Container") => {
-	return figma.currentPage.findOne(
+	return figma.currentPage.findChildren(
 		(node) => node.type === "FRAME" && node.name === _name
-	) as FrameNode;
+	)[0] as FrameNode;
 };
 
 const addHeader = async ({ title, count }) => {
@@ -711,10 +720,16 @@ const runReportPeople = async () => {
 };
 
 const findStatus = (statName) => {
-	const out = options.statuses.filter(({ label }) => label == statName);
+    statName = statName.toLowerCase().trim().replace(/[\u200B-\u200D\uFEFF\uFE0F]/g, '').replace(/\s+/g, ' ');
+    const out = options.statuses.filter(({ label }) => {
+        label = label.toLowerCase().trim().replace(/[\u200B-\u200D\uFEFF\uFE0F]/g, '').replace(/\s+/g, ' ');
+        return label === statName;
+    });
 
-	if (out.length) {
-		return out[0];
+    if (out.length) {
+        return out[0];
+    } else {
+		return null;
 	}
 };
 
@@ -727,7 +742,13 @@ const getOptions = ({
 		option = optionsDefault;
 		figma.notify("Statuses reset to default");
 	} else {
-		option = JSON.parse(figma.root.getPluginData("options"));
+		const savedOptions = figma.root.getPluginData("options");
+		if (savedOptions && savedOptions.length) {
+			option = JSON.parse(savedOptions);
+		} else {
+			figma.notify("No saved options, loading defaults");
+			option = optionsDefault;
+		}
 	}
 
 	// update stored satuses
@@ -791,8 +812,10 @@ const figmaCommand = (command) => {
 			});
 			break;
 		default:
+			const stateName = findStatus(command.slice(8, command.length).replaceAll("-", " "));
+			// console.log("🚀 ~ figmaCommand ~ stateName:", command, stateName)
 			setTitle({
-				state: findStatus(command.slice(8, command.length).replace("-", " ")),
+				state: stateName,
 			});
 			figma.closePlugin();
 			break;
