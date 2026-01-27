@@ -77,6 +77,10 @@ const optionsDefault = {
 	  "marker": "🔬"
     },
     {
+      "label": "️Reference",
+      "marker": "👁️"
+    },
+    {
       "label": "Researched",
 	  "marker": "📬"
     },
@@ -317,13 +321,14 @@ const writeLine = async ({ node, isFirst, container, append = true }) => {
 	line.layoutMode = "VERTICAL";
 	line.primaryAxisSizingMode = "AUTO";
 	line.counterAxisSizingMode = "AUTO";
+	line.minHeight = 54;
 
 	// padding
 	line.paddingTop = _baseSize;
 	line.paddingBottom = _baseSize;
 	line.paddingLeft = _baseSize;
 	line.paddingRight = _baseSize;
-	line.itemSpacing = _baseSize/2;
+	line.itemSpacing = _baseSize / 2;
 
 	// border
 	line.strokes = [{ type: "SOLID", color: _color.background }];
@@ -341,7 +346,7 @@ const writeLine = async ({ node, isFirst, container, append = true }) => {
 		value: getLink(node),
 	};
 	line.appendChild(nameText);
-	
+
 	// add author name
 	const metadataLine = setMetadataLine(node);
 
@@ -349,16 +354,13 @@ const writeLine = async ({ node, isFirst, container, append = true }) => {
 		const metadataNode = await createTextRow(metadataLine, "default");
 		metadataNode.fontSize = 12;
 		metadataNode.opacity = 0.6;
-
 		line.appendChild(metadataNode);
-
-		if (append) {
+	}
+	if (append) {
 		container.appendChild(line);
-		
 		line.layoutSizingHorizontal = "FILL";
-		} else {
-			return line;
-		}
+	} else {
+		return line;
 	}
 };
 
@@ -813,7 +815,6 @@ const figmaCommand = (command) => {
 			break;
 		default:
 			const stateName = findStatus(command.slice(8, command.length).replaceAll("-", " "));
-			// console.log("🚀 ~ figmaCommand ~ stateName:", command, stateName)
 			setTitle({
 				state: stateName,
 			});

@@ -1,6 +1,6 @@
 {
-  "name": "Workflow Organiser",
-  "id": "1583442933064683639",
+  "name": "Status Reporter",
+  "id": "1596519948517736684",
   "api": "1.0.0",
   "main": "code.js",
   "capabilities": [],
@@ -33,6 +33,10 @@
     {
       "name": "️🔬 In Research",
       "command": "setStateIn-Research"
+    },
+    {
+      "name": "️👁️ Reference",
+      "command": "setStateReference"
     },
     {
       "name": "️📬 Researched",
