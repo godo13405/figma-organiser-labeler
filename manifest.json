@@ -82,6 +82,10 @@
       "name": "🟢 Done",
       "command": "setStateDone"
     },
+    {
+      "name": "🗃️ Archived",
+      "command": "setStateArchived"
+    },
     {"separator": true},
     {
       "name": "📑 Run Stauts Report",

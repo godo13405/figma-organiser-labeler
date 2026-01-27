@@ -124,6 +124,10 @@ const optionsDefault = {
       "label": "Done",
 	  "marker": "🟢"
     },
+    {
+      "label": "Archived",
+	  "marker": "🗃️"
+    },
 	],
 	config: {
 		name: true,
@@ -154,6 +158,7 @@ if (includeTime) {
 }
 
 const setMetadata = (user) => {
+	console.log("🚀 ~ setMetadata ~ user:", user.photoUrl);
 	const selected = figma.currentPage.selection;
 	// set initials
 	const initialsQ = new RegExp(/[A-Z]/, "g");
