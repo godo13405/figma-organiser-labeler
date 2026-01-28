@@ -51,6 +51,7 @@ interface Options {
 		name: boolean;
 		date: boolean;
 		lastModified: boolean;
+		avatars: boolean;
 	};
 }
 
@@ -132,7 +133,8 @@ const optionsDefault = {
 	config: {
 		name: true,
 		date: false,
-		lastModified: true
+		lastModified: true,
+		avatars: true
 	},
 } as Options;
 
@@ -158,20 +160,25 @@ if (includeTime) {
 }
 
 const setMetadata = (user) => {
-	console.log("🚀 ~ setMetadata ~ user:", user.photoUrl);
 	const selected = figma.currentPage.selection;
 	// set initials
 	const initialsQ = new RegExp(/[A-Z]/, "g");
-	const initialsArr = user.match(initialsQ);
+	const initialsArr = user.name.match(initialsQ);
 	let initials = `${initialsArr[0]}${initialsArr.length > 1 ? initialsArr[initialsArr.length - 1] : ""}`;
 
 	// set author data on selected
-  const dateModified = getDate({includeTime: true});
+  	const dateModified = getDate({includeTime: true});
 	selected.forEach((node) => {
-		node.setPluginData("authorFullName", user);
+		node.setPluginData("authorFullName", user.name);
 		node.setPluginData("authorInitials", initials);
 		node.setPluginData("dateModified", dateModified);
+
+		// set user photo
+		if (options.config.avatars && user.photoUrl) {
+			node.setPluginData("authorPhotoUrl", user.photoUrl);
+		}
 	});
+
 
 	return initials;
 };
@@ -267,7 +274,7 @@ const setTitle = ({ state }) => {
 
 		const output = {
 			state: `${state.marker} ${state.label}`,
-			author: setMetadata(figma.currentUser!.name),
+			author: setMetadata(figma.currentUser),
 		};
 
 		// loop over selection
@@ -303,20 +310,45 @@ const getLink = (node) => {
 	return output;
 };
 
-const setMetadataLine = (node) => {
+const setMetadataLine = async (node) => {
+	const output = {text: []} as { image?: FrameNode, text: string[] } ;
+
+	const photoUrl = options.config.avatars ? node.getPluginData("authorPhotoUrl") : null;
 	const author = node.getPluginData("authorFullName");
 	const date = node.getPluginData("dateModified");
-	const output = `${
-		options.config.name && author
-			? `by ${author} `
-			: ""
-	}${
-		options.config.date && date
-			? `on ${date}`
-			: ""
-	}`;
 
-	return output ? output.trim() : "";
+
+	if (photoUrl) {
+		// Get an image from a URL.
+		const image = await figma.createImageAsync(photoUrl);
+
+		// Create a rectangle that's the same dimensions as the image.
+		const node = figma.createFrame();
+
+		const { width, height } = await image.getSizeAsync();
+		node.resize(20, 20);
+
+		// Render the image by filling the rectangle.
+		node.fills = [
+			{
+				type: "IMAGE",
+				imageHash: image.hash,
+				scaleMode: "FILL",
+			},
+		];
+
+		output.image = node;
+	}
+	if (options.config.name && author) output.text.push(`by ${author}`);
+	if (options.config.date && date) output.text.push(`on ${date}`);
+
+	if (output.image) {
+		return { image: output.image, text: output.text.join(" ")};
+	} else if (output.text.length) {
+		return { image: null, text: output.text.join(" ")};
+	} else {
+		return null;
+	}
 }
 
 const writeLine = async ({ node, isFirst, container, append = true }) => {
@@ -353,14 +385,33 @@ const writeLine = async ({ node, isFirst, container, append = true }) => {
 	line.appendChild(nameText);
 
 	// add author name
-	const metadataLine = setMetadataLine(node);
+	const metadataLine = await setMetadataLine(node);
 
-	if (metadataLine.length) {
-		const metadataNode = await createTextRow(metadataLine, "default");
-		metadataNode.fontSize = 12;
-		metadataNode.opacity = 0.6;
-		line.appendChild(metadataNode);
+	if (metadataLine) {
+		// Create container
+		const container = figma.createFrame() as FrameNode;
+		container.layoutMode = "HORIZONTAL";
+		container.primaryAxisSizingMode = "AUTO";
+		container.counterAxisSizingMode = "AUTO";
+		container.counterAxisAlignItems = "CENTER";
+		container.cornerRadius = 10;
+
+		// padding
+		container.itemSpacing = _baseSize / 2;
+
+		if (metadataLine.image) {
+			container.appendChild(metadataLine.image);
+		}
+		if (metadataLine.text.length) {
+			const metadataNode = await createTextRow(metadataLine.text, "-");
+			metadataNode.fontSize = 12;
+			metadataNode.opacity = 0.6;
+			container.appendChild(metadataNode);
+		}
+
+		line.appendChild(container);
 	}
+
 	if (append) {
 		container.appendChild(line);
 		line.layoutSizingHorizontal = "FILL";

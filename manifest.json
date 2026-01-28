@@ -8,10 +8,11 @@
   "enableProposedApi": false,
   "documentAccess": "dynamic-page",
   "editorType": ["figma"],
-  "ui": "ui.html",
-  "networkAccess": {
-    "allowedDomains": ["none"]
-  },
+  "ui": "ui.html","networkAccess": {
+  "allowedDomains": [
+    "https://*.figma.com"
+  ]
+},
   "permissions": ["currentuser"],
   "menu": [
     {
