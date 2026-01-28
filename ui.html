@@ -365,6 +365,15 @@
           onchange="reportOption('date', this.checked)"
         />Dates</label
       >
+      <label for="report-option-time"
+        ><input
+          type="checkbox"
+          role="switch"
+          class="switch"
+          id="report-option-time"
+          onchange="reportOption('time', this.checked)"
+        />Times</label
+      >
     <hr />
       <label for="report-option-lastmodified"
         ><input
@@ -478,6 +487,7 @@
     // match report options
     document.querySelector("#report-option-name").checked = document.options.config.name;
     document.querySelector("#report-option-date").checked = document.options.config.date;
+    document.querySelector("#report-option-time").checked = document.options.config.time;
     document.querySelector("#report-option-lastmodified").checked = document.options.config.lastModified;
 
     // clear existing lists

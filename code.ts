@@ -1,5 +1,5 @@
 const _baseSize = 8;
-const _containerWidth = 360;
+const _containerWidth = 375;
 const _font = {
 	default: { family: "Inter", size: 16, style: "Regular" },
 	bold: {
@@ -52,6 +52,7 @@ interface Options {
 		date: boolean;
 		lastModified: boolean;
 		avatars: boolean;
+		time: boolean;
 	};
 }
 
@@ -133,30 +134,50 @@ const optionsDefault = {
 	config: {
 		name: true,
 		date: false,
+		time: false,
 		lastModified: true,
-		avatars: true
+		avatars: true,
 	},
 } as Options;
 
-const getDate = ({includeTime}) => {
-  const today = new Date();
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const addLeadingZero = (num: string) => {
+	if (num.length == 1) {
+		num = `0${num}`;
+	}
 
-  let dateDay = today.getDate().toString();
-  if (dateDay.length == 1) { dateDay = `0${dateDay}`; }
-
- let output = `${dateDay} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
-
-if (includeTime) {
-  let dateHours = today.getHours().toString();
-  if (dateHours.length == 1) { dateHours = `0${dateHours}`; }
-
-  let dateMinutes = today.getMinutes().toString();
-  if (dateMinutes.length == 1) { dateMinutes = `0${dateMinutes}`; }
-
-  output += ` ${dateHours}:${dateMinutes}`;
+	return num;
 }
- return output;
+
+const getDateString = () => {
+	const today = new Date();
+	const monthNames = [
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec",
+	];
+
+	let dateDay = addLeadingZero(today.getDate().toString());
+
+	let output = `${dateDay} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+
+	return output;
+};
+
+const getTimeString = () => {
+	const today = new Date();
+	const dateHours = addLeadingZero(today.getHours().toString());
+	const dateMinutes = addLeadingZero(today.getMinutes().toString());
+
+	return ` ${dateHours}:${dateMinutes}`;
 }
 
 const setMetadata = (user) => {
@@ -166,12 +187,14 @@ const setMetadata = (user) => {
 	const initialsArr = user.name.match(initialsQ);
 	let initials = `${initialsArr[0]}${initialsArr.length > 1 ? initialsArr[initialsArr.length - 1] : ""}`;
 
-	// set author data on selected
-  	const dateModified = getDate({includeTime: true});
+  	const dateModified = getDateString();
+  	const timeModified = getTimeString();
+	
 	selected.forEach((node) => {
 		node.setPluginData("authorFullName", user.name);
 		node.setPluginData("authorInitials", initials);
 		node.setPluginData("dateModified", dateModified);
+		node.setPluginData("timeModified", timeModified);
 
 		// set user photo
 		if (options.config.avatars && user.photoUrl) {
@@ -316,6 +339,7 @@ const setMetadataLine = async (node) => {
 	const photoUrl = options.config.avatars ? node.getPluginData("authorPhotoUrl") : null;
 	const author = node.getPluginData("authorFullName");
 	const date = node.getPluginData("dateModified");
+	const time = options.config.time ? node.getPluginData("timeModified") : null;
 
 
 	if (photoUrl) {
@@ -341,6 +365,8 @@ const setMetadataLine = async (node) => {
 	}
 	if (options.config.name && author) output.text.push(`by ${author}`);
 	if (options.config.date && date) output.text.push(`on ${date}`);
+	if (time) output.text.push(`${time}`);
+	console.log("🚀 ~ setMetadataLine ~ output:", options.config, output)
 
 	if (output.image) {
 		return { image: output.image, text: output.text.join(" ")};
@@ -535,7 +561,7 @@ const runReport = async () => {
 
 	// set date last modified
 	if (options.config.lastModified) {
-		const reportLastModified = await createTextRow(` ran on ${getDate({includeTime: true})}`);
+		const reportLastModified = await createTextRow(` ran on ${getDateString()} at ${getTimeString()}`);
 		reportLastModified.opacity = 0.6;
 		headerContainer.appendChild(reportLastModified);
 	}
