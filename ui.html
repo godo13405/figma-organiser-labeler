@@ -356,6 +356,15 @@
           onchange="reportOption('name',this.checked)"
         />Names</label
       >
+      <label for="report-option-avatars"
+        ><input
+          type="checkbox"
+          role="switch"
+          class="switch"
+          id="report-option-avatars"
+          onchange="reportOption('avatars',this.checked)"
+        />Avatars</label
+      >
       <label for="report-option-date"
         ><input
           type="checkbox"
@@ -488,6 +497,7 @@
     document.querySelector("#report-option-name").checked = document.options.config.name;
     document.querySelector("#report-option-date").checked = document.options.config.date;
     document.querySelector("#report-option-time").checked = document.options.config.time;
+    document.querySelector("#report-option-avatars").checked = document.options.config.avatars;
     document.querySelector("#report-option-lastmodified").checked = document.options.config.lastModified;
 
     // clear existing lists
