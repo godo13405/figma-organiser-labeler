@@ -2,7 +2,7 @@
   "name": "Status Reporter",
   "id": "1596519948517736684",
   "api": "1.0.0",
-  "main": "code.js",
+  "main": "dist/code.js",
   "capabilities": [],
   "enablePrivatePluginApi": true,
   "enableProposedApi": false,
