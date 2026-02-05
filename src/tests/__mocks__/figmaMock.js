@@ -4,6 +4,11 @@ global.figma = {
 		name: "file name",
 	},
     currentPage: {},
+	createFrame: jest.fn(() => {
+		return {
+			appendChild: jest.fn(),
+		}
+	}),
 	createText: jest.fn(() => {
 		return {
 			fontName: "test font",
