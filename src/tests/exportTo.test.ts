@@ -1,15 +1,31 @@
-import getLink from "../getLink";
+import exportTo from "../exportTo";
 
-describe('create link string', () => {
-    let node;
-    
-    beforeEach(() => {
-        node = {
-            id: '123:456'
-        };
-    });
+describe("create csv string", () => {
+	beforeEach(() => {
+		figma.currentPage.findChildren = jest.fn(() => {
+			const mock = [
+				{ id: '123',
+                    getPluginData: (e) => 'authorFullName',
+                    name: "{💠 ️Ready to Dev} [GA] Admin / ACL" },
+				{ id: '123',
+                    getPluginData: (e) => 'authorFullName',
+                    name: "{💠 ️Ready to Dev} [GA] Admin / Audit Log" },
+				,
+				{
+					id: '123',
+                    getPluginData: (e) => 'authorFullName',
+                    name: "{💠 ️Ready to Dev} [GA] Admin / Field Maintenance",
+				},
+				,
+				{ id: '123',
+                    getPluginData: (e) => 'authorFullName',
+                    name: "{🟣 ️Needs Review} [GA] Admin / Form Designer" },
+			] as SceneNode[];
+			return mock;
+		});
+	});
 
-  test('correctly', () => {
-    expect(getLink(node)).toBe('https://www.figma.com/design/789/file-name?node-id=123-456');
-  });
+	test("correctly", () => {
+		expect(exportTo()).toBe(`Section Name,Status,Author,Date Modified,Link\nAdmin / ACL, 💠 ️Ready to Dev, authorFullName, authorFullName, https://www.figma.com/design/789/file-name?node-id=123\nAdmin / Audit Log, 💠 ️Ready to Dev, authorFullName, authorFullName, https://www.figma.com/design/789/file-name?node-id=123\nAdmin / Field Maintenance, 💠 ️Ready to Dev, authorFullName, authorFullName, https://www.figma.com/design/789/file-name?node-id=123\nAdmin / Form Designer, 🟣 ️Needs Review, authorFullName, authorFullName, https://www.figma.com/design/789/file-name?node-id=123\n`);
+	});
 });

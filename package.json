@@ -60,24 +60,5 @@
 	],
 	"dependencies": {
 		"babel-loader": "^10.0.0"
-	},
-	"jest": {
-		"modulePaths": [
-			"<rootDir>/src/"
-		],
-		"testMatch": [
-			"<rootDir>/**/*.test.ts"
-		],
-		"transformIgnorePatterns": [
-			"/node_modules/"
-		],
-		"globals": {
-			"figma": {
-            "fileKey": "789",
-            "root": {
-                "name": "file name"
-            }
-        }
-		}
 	}
 }

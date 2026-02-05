@@ -1,8 +1,8 @@
 import getLink from "./getLink";
 
-const exportTo = ({ type = "csv" }) => {
+const exportTo = ({ type = "csv" }: {type?} = {}) => {
 	let csvString = "Section Name,Status,Author,Date Modified,Link\n";
-	
+
 	// find all sections
 	const NAME_REGEX = /^\{.*?\}\s\[[A-Z]{2}\]/;
 	const sections = figma.currentPage.findChildren((node) => {
@@ -26,6 +26,8 @@ const exportTo = ({ type = "csv" }) => {
 	});
 
 	figma.notify(`Report exported`);
+
+	return csvString;
 }
 
 export default exportTo;
