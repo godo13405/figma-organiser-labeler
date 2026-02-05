@@ -4,6 +4,13 @@ global.figma = {
 		name: "file name",
 	},
     currentPage: {},
+	createText: jest.fn(() => {
+		return {
+			fontName: "test font",
+			fontSize: 16,
+			characters: ""
+		};
+	}),
 	clientStorage: {
 		getAsync: jest.fn(() => Promise.resolve()),
 		setAsync: jest.fn(() => Promise.resolve()),
