@@ -3,9 +3,8 @@ import addHeader from "../addHeader";
 describe('create link string', () => {
   test('correctly', () => {
     addHeader({title: "lorem ipsum", count: 42}).then(result => {
-        result.appendChild = 0;
+        delete result.appendChild;
         expect(result).toStrictEqual({
-            "appendChild": 0,
             "counterAxisSizingMode": "AUTO",
             "layoutAlign": "STRETCH",
             "layoutMode": "HORIZONTAL",
