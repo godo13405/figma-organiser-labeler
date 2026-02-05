@@ -1,7 +1,9 @@
-const path = require("path");
-const webpack = require("webpack");
+import path from "path";
+import webpack from "webpack";
 
-module.exports = (env, argv) => ({
+const __dirname = path.resolve();
+
+export default (env, argv) => ({
 	mode: argv.mode === "production" ? "production" : "development",
 
 	// This is necessary because Figma's 'eval' works differently than normal eval
@@ -16,6 +18,18 @@ module.exports = (env, argv) => ({
 				test: /\.tsx?$/,
 				use: "ts-loader",
 				exclude: /node_modules/,
+			},
+			{
+				test: /\.test.ts$/,
+				exclude: /node_modules/,
+				collectCoverageFrom: ["**/*.{js,jsx}", "!**/node_modules/**"],
+				use: {
+					loader: "babel-loader",
+					options: {
+						targets: "defaults",
+						presets: [["@babel/preset-env"]],
+					},
+				},
 			},
 		],
 	},

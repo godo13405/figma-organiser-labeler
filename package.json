@@ -1,53 +1,83 @@
 {
-  "name": "status-reporter",
-  "version": "1.0.0",
-  "description": "Your Figma Plugin",
-  "main": "code.js",
-  "scripts": {
-    "build": "webpack",
-    "lint": "eslint --ext .ts,.tsx --ignore-pattern node_modules .",
-    "lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix .",
-    "watch": "npm run build -- --watch"
-  },
-  "author": "",
-  "license": "",
-  "devDependencies": {
-    "@figma/eslint-plugin-figma-plugins": "*",
-    "@figma/plugin-typings": "^1.121.0",
-    "@types/eslint": "^9.6.1",
-    "@typescript-eslint/eslint-plugin": "^6.12.0",
-    "@typescript-eslint/parser": "^6.12.0",
-    "eslint": "^8.54.0",
-    "ts-loader": "^9.5.4",
-    "typescript": "^5.9.3",
-    "webpack": "^5.105.0",
-    "webpack-cli": "^6.0.1"
-  },
-  "eslintConfig": {
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:@figma/figma-plugins/recommended"
-    ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "project": "./tsconfig.json"
-    },
-    "root": true,
-    "rules": {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        {
-          "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_"
+	"name": "status-reporter",
+	"version": "1.0.0",
+	"description": "Your Figma Plugin",
+	"main": "code.js",
+	"type": "module",
+	"scripts": {
+		"build": "webpack",
+		"lint": "eslint --ext .ts,.tsx --ignore-pattern node_modules .",
+		"lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix .",
+		"watch": "npm run build -- --watch"
+	},
+	"author": "",
+	"license": "",
+	"devDependencies": {
+		"@babel/core": "^7.29.0",
+		"@babel/plugin-transform-typescript": "^7.28.6",
+		"@babel/preset-env": "^7.29.0",
+		"@babel/preset-typescript": "^7.28.5",
+		"@figma/eslint-plugin-figma-plugins": "*",
+		"@figma/plugin-typings": "^1.121.0",
+		"@types/eslint": "^9.6.1",
+		"@types/jest": "^30.0.0",
+		"@typescript-eslint/eslint-plugin": "^6.12.0",
+		"@typescript-eslint/parser": "^6.12.0",
+		"babel-jest": "^30.2.0",
+		"eslint": "^8.54.0",
+		"jest": "^30.2.0",
+		"ts-jest": "^29.4.6",
+		"ts-loader": "^9.5.4",
+		"typescript": "^5.9.3",
+		"webpack": "^5.105.0",
+		"webpack-cli": "^6.0.1"
+	},
+	"eslintConfig": {
+		"extends": [
+			"eslint:recommended",
+			"plugin:@typescript-eslint/recommended",
+			"plugin:@figma/figma-plugins/recommended"
+		],
+		"parser": "@typescript-eslint/parser",
+		"parserOptions": {
+			"project": "./tsconfig.json"
+		},
+		"root": true,
+		"rules": {
+			"@typescript-eslint/no-unused-vars": [
+				"error",
+				{
+					"argsIgnorePattern": "^_",
+					"varsIgnorePattern": "^_",
+					"caughtErrorsIgnorePattern": "^_"
+				}
+			]
+		}
+	},
+	"moduleDirectories": [
+		"node_modules",
+		"src"
+	],
+	"dependencies": {
+		"babel-loader": "^10.0.0"
+	},
+	"jest": {
+		"modulePaths": [
+			"<rootDir>/src/"
+		],
+		"testMatch": [
+			"<rootDir>/**/*.test.ts"
+		],
+		"transformIgnorePatterns": [
+			"/node_modules/"
+		],
+		"globals": {
+			"figma": {
+            "fileKey": "789",
+            "root": {
+                "name": "file name"
+            }
         }
-      ]
-    }
-  },
-  "dependencies": {
-    "gulp": "^5.0.1",
-    "gulp-cli": "^3.1.0",
-    "gulp-typescript": "^6.0.0-alpha.1"
-  }
+		}
+	}
 }

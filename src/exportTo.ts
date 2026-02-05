@@ -2,7 +2,7 @@ import getLink from "./getLink";
 
 const exportTo = ({ type = "csv" }) => {
 	let csvString = "Section Name,Status,Author,Date Modified,Link\n";
-
+	
 	// find all sections
 	const NAME_REGEX = /^\{.*?\}\s\[[A-Z]{2}\]/;
 	const sections = figma.currentPage.findChildren((node) => {
