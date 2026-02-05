@@ -13,7 +13,9 @@ global.figma = {
 			}
 		}
 	},
-	currentPage: {},
+	currentPage: {
+		findChildren: jest.fn(() => [])
+	},
 	viewport: {
 		center: {
 			x: 1,
