@@ -18,7 +18,9 @@ const runReport = async (options) => {
 		figma.currentPage.appendChild(frame);
 	} else {
 		// Clear existing content
-		frame.children.forEach((child) => child.remove());
+		if (frame.children) {
+			frame.children.forEach((child) => child.remove());
+		}
 	}
 
 	// ✅ Font must be loaded BEFORE setting characters
@@ -127,6 +129,8 @@ const runReport = async (options) => {
 	frame.appendChild(reportContainer);
 
 	figma.notify(`${matches.length} added to report`);
+
+	return frame;
 };
 
 export default runReport;

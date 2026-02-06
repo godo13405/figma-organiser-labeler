@@ -2,12 +2,12 @@ import getParentSection from "./getParentSection";
 import setMetadata from "./setMetadata";
 import updateReportLine from "./updateReportLine";
 
-const setTitle = ({ state, options }) => {
+const setTitle = ({ state, options }: {state?, options?} = {}) => {
 	// passing a valid state?
 	if (!state) {
 		figma.notify("Error: Invalid state passed");
 		figma.closePlugin();
-		return;
+		return false;
 	}
 
 	// is 1 node at least selected?
@@ -43,6 +43,7 @@ const setTitle = ({ state, options }) => {
 		figma.notify(`${selection.length} now set to ${output.state}`);
 	} else {
 		figma.notify("please select at least 1 Section");
+		return false;
 	}
 	figma.closePlugin();
 };

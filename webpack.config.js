@@ -1,8 +1,6 @@
 import path from "path";
 import webpack from "webpack";
 
-const __dirname = path.resolve();
-
 export default (env, argv) => ({
 	mode: argv.mode === "production" ? "production" : "development",
 
@@ -22,7 +20,6 @@ export default (env, argv) => ({
 			{
 				test: /\.test.ts$/,
 				exclude: /node_modules/,
-				collectCoverageFrom: ["**/*.{js,jsx}", "!**/node_modules/**"],
 				use: {
 					loader: "babel-loader",
 					options: {
@@ -39,6 +36,6 @@ export default (env, argv) => ({
 	},
 	output: {
 		filename: "[name].js",
-		path: path.resolve(__dirname, "dist"),
+		path: path.resolve(path.resolve(), "dist"),
 	},
 });

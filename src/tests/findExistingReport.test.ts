@@ -5,7 +5,8 @@ describe("find existing report", () => {
 		expect(findExistingReport()).toBe(undefined);
 	});
 	test("exists", () => {
-		figma.currentPage.findChildren = () => [{name: "lorem ipsum"}];
-		expect(findExistingReport()).toStrictEqual({name: "lorem ipsum"});
+		const part = {name: "lorem ipsum"} as unknown as FrameNode;
+		figma.currentPage.findChildren = () => [part];
+		expect(findExistingReport()).toStrictEqual(part);
 	});
 });

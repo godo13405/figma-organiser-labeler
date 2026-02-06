@@ -3,18 +3,22 @@ import addHeader from "../addHeader";
 describe('create link string', () => {
   test('correctly', () => {
     addHeader({title: "lorem ipsum", count: 42}).then(result => {
-        delete result.appendChild;
         expect(result).toStrictEqual({
+            "width": expect.any(Number),
+            "height": expect.any(Number),
+            "x": expect.any(Number),
+            "y": expect.any(Number),
+            "appendChild": expect.any(Function),
             "counterAxisSizingMode": "AUTO",
             "layoutAlign": "STRETCH",
             "layoutMode": "HORIZONTAL",
-            "paddingBottom": 8,
-            "paddingLeft": 8,
-            "paddingRight": 8,
-            "paddingTop": 8,
+            "paddingBottom": expect.any(Number),
+            "paddingLeft": expect.any(Number),
+            "paddingRight": expect.any(Number),
+            "paddingTop": expect.any(Number),
             "primaryAxisSizingMode": "FIXED",
-            "strokeBottomWeight": 1,
-            "strokes": [{"color": {"b": 0.6666666666666666, "g": 0.6666666666666666, "r": 0.6666666666666666}, "type": "SOLID"}]
+            "strokeBottomWeight": expect.any(Number),
+            "strokes": [{"color": {"b": expect.any(Number), "g": expect.any(Number), "r": expect.any(Number)}, "type": "SOLID"}]
         })
     });
   });

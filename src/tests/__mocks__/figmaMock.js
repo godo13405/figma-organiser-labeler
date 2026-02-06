@@ -8,23 +8,44 @@ global.figma = {
 		getPluginData: (param) => {
 			switch (param) {
 				case "options":
-					return JSON.stringify(global.options)
+					return JSON.stringify(global.options);
 					break;
 			}
-		}
+		},
 	},
 	currentPage: {
-		findChildren: jest.fn(() => [])
+		findChildren: jest.fn(() => []),
+		appendChild: jest.fn(),
+		findChildren: () => [],
+		selection: [{
+			setPluginData: (key, value) => global[key] = value
+		}]
+	},
+	currentUser: {
+		name: "Robute Guilliman"
 	},
 	viewport: {
 		center: {
-			x: 1,
-			y: 1,
+			x: 100,
+			y: 100,
 		},
 	},
 	createFrame: jest.fn(() => {
 		return {
+			width: 100,
+			height: 50,
+			x: 1,
+			y: 1,
+			children: [],
 			appendChild: jest.fn(),
+		};
+	}),
+	createSection: jest.fn(() => {
+		return {
+			appendChild: jest.fn(),
+			resizeWithoutConstraints: (w, h) => {
+				return {w, h}
+			}
 		};
 	}),
 	createText: jest.fn(() => {
@@ -46,6 +67,8 @@ global.figma = {
 	getLocalTextStyles: jest.fn(() => []),
 	loadFontAsync: jest.fn(() => Promise.resolve()),
 	createTextStyle: jest.fn(),
+	closePlugin: jest.fn(),
+	notify: (msg) => global.msg = msg
 };
 
 global.options = {
