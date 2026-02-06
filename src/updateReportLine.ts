@@ -24,11 +24,10 @@ const updateReportLine = async ({node, options}) => {
 			});
 
 			if (updated) {
-				console.log("🚀 ~ updateReportLine ~ updated:", updated)
 				containerNode.children.forEach((child) => child.remove());
-				// updated.children.forEach((child) => {
-				// 	containerNode.appendChild(child);
-				// });
+				updated.children.forEach((child) => {
+					containerNode.appendChild(child);
+				});
 			}
 		} else {
 			console.log("No report item to update");
