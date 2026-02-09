@@ -1,6 +1,7 @@
+import getReportGroup from "./getReportGroup";
 import writeLine from "./writeLine";
 
-const updateReportLine = async ({node, options}) => {
+const updateReportLine = async ({node, options, oldStatus}) => {
 	// find the item to uppdate
 	let isFirst = true;
 	// check if the report exists
@@ -8,30 +9,55 @@ const updateReportLine = async ({node, options}) => {
 	if (statusReportContainer) {
 		const sectionName = node.name.replace(/^\{.*?\}\s\[[A-Z]{2}\]/g, "").trim();
 		const reportContainer = statusReportContainer.findChildren(n => n.name == "Report Container")[0] as FrameNode;
-		const groupContainer = reportContainer.findChildren(n => n.name == node.name.match(/^\{.*?\}/g)![0].replace("{", "").replace("}", ""))[0] as FrameNode;
-		const containerNode = groupContainer.findChildren((n) => {
-			if (isFirst) isFirst = false;
-			return n.name == sectionName
-		})[0] as FrameNode;
 
-		if (containerNode) {
-			const updated = await writeLine({
-				node,
-				isFirst: false,
-				container: containerNode.parent,
-				append: false,
-				options
-			});
+		// find group for old status
+		const groupContainerOld = reportContainer.findChildren(n => n.name == oldStatus.match(/^\{.*?\}/g)![0].replace("{", "").replace("}", ""))[0] as FrameNode;
 
-			if (updated) {
+		// get new lines
+		const writtenLine = await writeLine({
+			node,
+			isFirst: false,
+			options,
+		});
+		
+		if (groupContainerOld) {
+			let containerNode = groupContainerOld.findChildren((n) => {
+				if (isFirst) isFirst = false;
+				return n.name == sectionName
+			})[0] as FrameNode;
+
+			if (node.name != oldStatus) {
+				containerNode.remove();
+			} else if (!containerNode) {
+				containerNode = writtenLine;
+			} else if (containerNode.children) {
 				containerNode.children.forEach((child) => child.remove());
-				updated.children.forEach((child) => {
-					containerNode.appendChild(child);
+				writtenLine.children.forEach((line) => {
+					containerNode.appendChild(line);
 				});
+				writtenLine.remove();
 			}
-		} else {
-			console.log("No report item to update");
-			return "No report item to update";
+		}
+
+		// if the status is different, let's move the line
+		if (node.name != oldStatus) {
+			// find group for new status
+			let groupContainerNew = reportContainer.findChildren(n => n.name == node.name.match(/^\{.*?\}/g)[0].replace("{", "").replace("}", ""))[0] as FrameNode;
+
+			// if the group doesn;t exist, create it
+			if (!groupContainerNew) {
+				groupContainerNew = await getReportGroup({
+					name: node.name
+						.match(/^\{.*?\}/g)[0]
+						.replace("{", "")
+						.replace("}", ""),
+					count: 1,
+				});
+				reportContainer.appendChild(groupContainerNew);
+			}
+
+			// append line to new status
+			groupContainerNew.appendChild(writtenLine);
 		}
 	} else {
 		console.log("no report to update");

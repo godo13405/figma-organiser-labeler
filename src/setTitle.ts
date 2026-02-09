@@ -29,7 +29,8 @@ const setTitle = ({ state, options }: {state?, options?} = {}) => {
 
 		selection.map((selected) => {
 			// let's make sure the name isn't erased. Let's extract it from the name
-			const title = selected.name.split(/\] /gm);
+			const oldStatus = selected.name;
+			const title = oldStatus.split(/\] /gm);
 			const titleArr = title.slice(title.length - 1, title.length)[0];
 
 			selected.name = `{${output.state}} [${output.author}] ${
@@ -37,7 +38,7 @@ const setTitle = ({ state, options }: {state?, options?} = {}) => {
 			}`;
 
 			// update line in report
-			updateReportLine({node: selected, options});
+			updateReportLine({node: selected, options, oldStatus});
 		});
 
 		figma.notify(`${selection.length} now set to ${output.state}`);

@@ -4,8 +4,7 @@ import getTimeString from "./getTimeString";
 const setMetadata = (user, options) => {
 	const selected = figma.currentPage.selection;
 	// set initials
-	const initialsQ = new RegExp(/[A-Z]/, "g");
-	const initialsArr = user.name.match(initialsQ);
+	const initialsArr = user.name.match(/[A-Z]/gm);
 	let initials = `${initialsArr[0]}${initialsArr.length > 1 ? initialsArr[initialsArr.length - 1] : ""}`;
 
   	const dateModified = getDateString();
@@ -16,13 +15,8 @@ const setMetadata = (user, options) => {
 		node.setPluginData("authorInitials", initials);
 		node.setPluginData("dateModified", dateModified);
 		node.setPluginData("timeModified", timeModified);
-
-		// set user photo
-		if (options.config.avatars && user.photoUrl) {
-			node.setPluginData("authorPhotoUrl", user.photoUrl);
-		}
+		node.setPluginData("authorPhotoUrl", user.photoUrl);
 	});
-
 
 	return initials;
 };

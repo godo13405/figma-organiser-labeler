@@ -3,8 +3,11 @@ import createTextRow from "./createTextRow";
 import getLink from "./getLink";
 import setMetadataLine from "./setMetadataLine";
 
-const writeLine = async ({ node, isFirst, container, append = true, options }) => {
-	const line = figma.createFrame() as FrameNode;
+const writeLine = async ({ node, isFirst, options }: {node, isFirst, options }) => {
+	// add author name
+	const metadataLine = await setMetadataLine(node, options);
+	
+	const line = figma.createFrame();
 
 	// ✅ Enable Auto Layout
 	line.layoutMode = "VERTICAL";
@@ -36,40 +39,32 @@ const writeLine = async ({ node, isFirst, container, append = true, options }) =
 	};
 	line.appendChild(nameText);
 
-	// add author name
-	const metadataLine = await setMetadataLine(node, options);
-
 	if (metadataLine) {
 		// Create container
-		const container = figma.createFrame() as FrameNode;
-		container.layoutMode = "HORIZONTAL";
-		container.primaryAxisSizingMode = "AUTO";
-		container.counterAxisSizingMode = "AUTO";
-		container.counterAxisAlignItems = "CENTER";
-		container.cornerRadius = 10;
+		const _container = figma.createFrame();
+		_container.layoutMode = "HORIZONTAL";
+		_container.primaryAxisSizingMode = "AUTO";
+		_container.counterAxisSizingMode = "AUTO";
+		_container.counterAxisAlignItems = "CENTER";
+		_container.cornerRadius = 10;
 
 		// padding
-		container.itemSpacing = _baseSize / 2;
+		_container.itemSpacing = _baseSize / 2;
 
 		if (metadataLine.image) {
-			container.appendChild(metadataLine.image);
+			_container.appendChild(metadataLine.image);
 		}
 		if (metadataLine.text.length) {
 			const metadataNode = await createTextRow(metadataLine.text, "-");
 			metadataNode.fontSize = 12;
 			metadataNode.opacity = 0.6;
-			container.appendChild(metadataNode);
+			_container.appendChild(metadataNode);
 		}
 
-		line.appendChild(container);
+		line.appendChild(_container);
 	}
 
-	if (append) {
-		container.appendChild(line);
-		line.layoutSizingHorizontal = "FILL";
-	} else {
-		return line;
-	}
+	return line;
 };
 
 export default writeLine;

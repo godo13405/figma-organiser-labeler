@@ -37,6 +37,7 @@ global.figma = {
 			x: 1,
 			y: 1,
 			children: [],
+			remove: jest.fn(),
 			appendChild: jest.fn(),
 		};
 	}),
@@ -151,6 +152,6 @@ global.options = {
 		date: false,
 		time: false,
 		lastModified: true,
-		avatars: true,
+		avatars: false,
 	},
 };

@@ -7,6 +7,7 @@ import hexToRgb from "./hexToRgb";
 import writeLine from "./writeLine";
 import addHeader from "./addHeader";
 import { _baseSize, _containerWidth, _font, _frame, _sectionPadding , _color} from "./_vars";
+import getReportGroup from "./getReportGroup";
 
 
 const runReport = async (options) => {
@@ -95,31 +96,13 @@ const runReport = async (options) => {
 		const count = orgMatches[group].length;
 
 		// create group container
-		const container = figma.createFrame();
-		container.name = group;
-		container.layoutMode = "VERTICAL";
-		container.layoutAlign = "STRETCH";
-		container.primaryAxisSizingMode = "AUTO";
-		container.counterAxisSizingMode = "FIXED";
-		container.paddingTop = _baseSize * 2;
-		container.paddingBottom = _baseSize * 2;
-		container.paddingLeft = _baseSize * 2;
-		container.paddingRight = _baseSize * 2;
-		container.cornerRadius = 8;
-		container.minWidth = _containerWidth;
-		container.fills = [
-			{
-				type: "SOLID",
-				color: hexToRgb("#fff"),
-			},
-		];
-
-		container.appendChild(await addHeader({ title: group, count }));
+		const container = await getReportGroup({name: group, count});
 
 		// add items
 		let isFirst = true;
 		for (const node of orgMatches[group]) {
-			await writeLine({ node, isFirst, container, options });
+			const line = await writeLine({ node, isFirst, options });
+			container.appendChild(line);
 			isFirst = false;
 		}
 

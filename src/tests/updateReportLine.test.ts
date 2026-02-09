@@ -28,11 +28,13 @@ describe("update report line", () => {
 									// containerNode
 									id: "123:456",
 									parent: "Container parent",
+									remove: jest.fn(),
 									children: {
 										forEach: jest.fn()
 									}
 								}]
-							}
+							},
+							appendChild: jest.fn()
 						}]
 					}
 				}]
@@ -51,7 +53,7 @@ describe("update report line", () => {
 				};
 			}),
 		}));
-		updateReportLine({node, options: global.options}).then((result) => {
+		updateReportLine({node, options: global.options, oldStatus: ""}).then((result) => {
 			expect(result).resolves;
 		});
 	});
