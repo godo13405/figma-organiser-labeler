@@ -19,6 +19,7 @@
     padding: 0;
     margin: 0;
   }
+
   body {
     font-family: Helvetica, Arial, sans-serif;
     background-color: var(--color-background);
@@ -35,6 +36,7 @@
     border-bottom: 1px solid var(--color-border);
     height: var(--nav-height);
   }
+
   .tabsInnerContainer {
     display: flex;
     flex-direction: row;
@@ -131,9 +133,11 @@
     cursor: pointer;
     transition: font-weight 0.2s ease-out;
   }
+
   .status-assign-button:hover {
     font-weight: 700;
   }
+
   .status-assign-button:not(.active) {
     pointer-events: none;
     opacity: 0.4;
@@ -213,12 +217,14 @@
   .assign-target .listicle {
     padding: 0.8em;
   }
+
   .notification {
     background-color: var(--color-background-dark);
     font-size: 0.8em;
     padding: 0.8em;
     margin: 0;
   }
+
   .notification.active {
     font-weight: 600;
     background-color: var(--color-background-light);
@@ -252,6 +258,7 @@
     background-color: var(--color-border);
     transition: background-color 0.1s ease-out;
   }
+
   input:where([type="checkbox"][role="switch"])::before {
     content: "";
     position: absolute;
@@ -267,13 +274,16 @@
     box-shadow: 0 1px .4em var(--color-background-dark);
     transition: left 0.1s ease-out;
   }
+
   input:where([type="checkbox"][role="switch"]):checked {
     background-color: var(--color-success);
   }
+
   input:where([type="checkbox"][role="switch"]):checked::before {
     left: 1em;
   }
-  input:where([type="checkbox"][role="switch"]):checked + .sentence-negative {
+
+  input:where([type="checkbox"][role="switch"]):checked+.sentence-negative {
     display: none;
   }
 
@@ -310,7 +320,6 @@
     font-size: 0.9em;
     padding: .6em 0;
   }
-
 </style>
 <nav class="tabsContainer">
   <div class="tabsInnerContainer">
@@ -320,7 +329,10 @@
   </div>
 
   <a class="tab more-button help-target" id="help">
-    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000"><path d="M480-240q20 0 34-14t14-34q0-20-14-34t-34-14q-20 0-34 14t-14 34q0 20 14 34t34 14Zm-36-153h73q0-37 6.5-52.5T555-485q35-34 48.5-58t13.5-53q0-55-37.5-89.5T484-720q-51 0-88.5 27T343-620l65 27q9-28 28.5-43.5T482-652q28 0 46 16t18 42q0 23-15.5 41T496-518q-35 32-43.5 52.5T444-393Zm36 297q-79 0-149-30t-122.5-82.5Q156-261 126-331T96-480q0-80 30-149.5t82.5-122Q261-804 331-834t149-30q80 0 149.5 30t122 82.5Q804-699 834-629.5T864-480q0 79-30 149t-82.5 122.5Q699-156 629.5-126T480-96Zm0-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-312Z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000">
+      <path
+        d="M480-240q20 0 34-14t14-34q0-20-14-34t-34-14q-20 0-34 14t-14 34q0 20 14 34t34 14Zm-36-153h73q0-37 6.5-52.5T555-485q35-34 48.5-58t13.5-53q0-55-37.5-89.5T484-720q-51 0-88.5 27T343-620l65 27q9-28 28.5-43.5T482-652q28 0 46 16t18 42q0 23-15.5 41T496-518q-35 32-43.5 52.5T444-393Zm36 297q-79 0-149-30t-122.5-82.5Q156-261 126-331T96-480q0-80 30-149.5t82.5-122Q261-804 331-834t149-30q80 0 149.5 30t122 82.5Q804-699 834-629.5T864-480q0 79-30 149t-82.5 122.5Q699-156 629.5-126T480-96Zm0-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-312Z" />
+    </svg>
   </a>
 </nav>
 <main class="content-container assign-target" id="assign-content">
@@ -344,64 +356,36 @@
     <span class="header-container">
       <H3>Report Options</H3>
       <button class="action-button secondary" onClick="exportTo({type: 'csv'})">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px">
+          <path
+            d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" />
+        </svg>
       </button>
     </span>
-      <label for="report-option-name"
-        ><input
-          type="checkbox"
-          role="switch"
-          class="switch"
-          id="report-option-name"
-          onchange="reportOption('name',this.checked)"
-        />Names</label
-      >
-      <label for="report-option-avatars"
-        ><input
-          type="checkbox"
-          role="switch"
-          class="switch"
-          id="report-option-avatars"
-          onchange="reportOption('avatars',this.checked)"
-        />Avatars</label
-      >
-      <label for="report-option-date"
-        ><input
-          type="checkbox"
-          role="switch"
-          class="switch"
-          id="report-option-date"
-          onchange="reportOption('date', this.checked)"
-        />Dates</label
-      >
-      <label for="report-option-time"
-        ><input
-          type="checkbox"
-          role="switch"
-          class="switch"
-          id="report-option-time"
-          onchange="reportOption('time', this.checked)"
-        />Times</label
-      >
+    <label for="report-option-name"><input type="checkbox" role="switch" class="switch" id="report-option-name"
+        onchange="reportOption('name',this.checked)" />Names</label>
+    <label for="report-option-avatars"><input type="checkbox" role="switch" class="switch" id="report-option-avatars"
+        onchange="reportOption('avatars',this.checked)" />Avatars</label>
+    <label for="report-option-date"><input type="checkbox" role="switch" class="switch" id="report-option-date"
+        onchange="reportOption('date', this.checked)" />Dates</label>
+    <label for="report-option-time"><input type="checkbox" role="switch" class="switch" id="report-option-time"
+        onchange="reportOption('time', this.checked)" />Times</label>
+    <label for="report-option-liveUpdate"><input type="checkbox" role="switch" class="switch"
+        id="report-option-liveUpdate" onchange="reportOption('liveUpdate', this.checked)" />Live Update</label>
     <hr />
-      <label for="report-option-lastmodified"
-        ><input
-          type="checkbox"
-          role="switch"
-          class="switch"
-          id="report-option-lastmodified"
-          onchange="reportOption('lastmodified', this.checked)"
-        />Report ran on date</label
-      >
+    <label for="report-option-lastmodified"><input type="checkbox" role="switch" class="switch"
+        id="report-option-lastmodified" onchange="reportOption('lastmodified', this.checked)" />Report ran on
+      date</label>
   </div>
 </main>
 <main class="content-container help-target" id="help-content">
   <div class="workspace">
     <h3>Help</h3>
-    <p>This Plugin is meant to help organise your and your team’s work, by grouping elements in Sections, and assigning them statuses.</p>
+    <p>This Plugin is meant to help organise your and your team’s work, by grouping elements in Sections, and assigning
+      them statuses.</p>
     <p>You can also run reports to check the progress, and report to stakeholders.</p>
   </div>
-  </main>
+</main>
 <script>
   // vars before anything
   let statusKeyTracker = 0;
@@ -515,14 +499,14 @@
           "*"
         );
       document.querySelector("#status-apply").appendChild(elem);
-      
+
       // add options to configure
       addStatus(option);
     });
   };
 
   const reportOption = (option, value) => {
-    
+
     document.options.config[option] = value;
 
     parent.postMessage(
@@ -540,39 +524,38 @@
       elems.forEach((e) => e.classList.remove("active"));
     } else {
       notification.classList.add("active");
-      notification.innerText = `${selection.length} Section${
-        selection.length > 1 ? "s" : ""
-      } to rename`;
+      notification.innerText = `${selection.length} Section${selection.length > 1 ? "s" : ""
+        } to rename`;
       elems.forEach((e) => e.classList.add("active"));
     }
   };
- 
-  const exportTo = ({type = "csv"}) => {
+
+  const exportTo = ({ type = "csv" }) => {
     parent.postMessage(
       { pluginMessage: { fn: "exportTo", options: type } },
       "*"
     );
   }
 
-  const download = ({data, name = "Status Report"}) => {
+  const download = ({ data, name = "Status Report" }) => {
     // Create a Blob with the CSV data and type
     const blob = new Blob([data], { type: 'text/csv' });
-    
+
     // Create a URL for the Blob
     const url = URL.createObjectURL(blob);
-    
+
     // Create an anchor tag for downloading
     const a = document.createElement('a');
-    
+
     // Set the URL and download attribute of the anchor tag
     a.href = url;
     a.download = `${name}.csv`;
-    
+
     // Trigger the download by clicking the anchor tag
     a.click();
-}
- 
- 
+  }
+
+
   // stay up to date with selection
   let selection;
 
@@ -603,7 +586,7 @@
         assignList();
         break;
       case "export":
-        download({data: msg.options});
+        download({ data: msg.options });
         break;
     }
   };

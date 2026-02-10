@@ -40,9 +40,9 @@ const updateReportLine = async ({node, options, oldStatus}) => {
 		}
 
 		// if the status is different, let's move the line
+		// find group for new status
+		let groupContainerNew = reportContainer.findChildren(n => n.name == node.name.match(/^\{.*?\}/g)[0].replace("{", "").replace("}", ""))[0] as FrameNode;
 		if (node.name != oldStatus) {
-			// find group for new status
-			let groupContainerNew = reportContainer.findChildren(n => n.name == node.name.match(/^\{.*?\}/g)[0].replace("{", "").replace("}", ""))[0] as FrameNode;
 
 			// if the group doesn;t exist, create it
 			if (!groupContainerNew) {
@@ -59,6 +59,12 @@ const updateReportLine = async ({node, options, oldStatus}) => {
 			// append line to new status
 			groupContainerNew.appendChild(writtenLine);
 		}
+
+		return {
+			isNew: node.name == oldStatus,
+			groupContainerNew,
+			writtenLine
+		};
 	} else {
 		console.log("no report to update");
 		return "no report to update";

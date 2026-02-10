@@ -10,25 +10,25 @@ const setMetadataLine = async (node, options) => {
 	if (photoUrl) {
 		// TODO 
 		// figma.createImageAsync stops this function running, console.logs after it aren't triggered
-		// // Get an image from a URL.
-		// const image = await figma.createImageAsync(photoUrl);
+		// Get an image from a URL.
+		const image = await figma.createImageAsync(photoUrl);
 
-		// // Create a rectangle that's the same dimensions as the image.
-		// const node = figma.createFrame();
+		// Create a rectangle that's the same dimensions as the image.
+		const node = figma.createFrame();
 
-		// node.resize(20, 20);
-		// node.cornerRadius = 10;
+		node.resize(20, 20);
+		node.cornerRadius = 10;
 
-		// // Render the image by filling the rectangle.
-		// node.fills = [
-		// 	{
-		// 		type: "IMAGE",
-		// 		imageHash: image.hash,
-		// 		scaleMode: "FILL",
-		// 	},
-		// ];
+		// Render the image by filling the rectangle.
+		node.fills = [
+			{
+				type: "IMAGE",
+				imageHash: image.hash,
+				scaleMode: "FILL",
+			},
+		];
 
-		// output.image = node;
+		output.image = node;
 	}
 	if (options.config.name && author) {
 		output.text.push(`by ${author}`);

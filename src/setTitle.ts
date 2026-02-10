@@ -38,10 +38,13 @@ const setTitle = ({ state, options }: {state?, options?} = {}) => {
 			}`;
 
 			// update line in report
-			updateReportLine({node: selected, options, oldStatus});
+			if (options.config.liveUpdate) {
+				updateReportLine({node: selected, options, oldStatus});
+			}
 		});
 
-		figma.notify(`${selection.length} now set to ${output.state}`);
+		const notification = `${selection.length} now set to ${output.state}`;
+		figma.notify(notification);
 	} else {
 		figma.notify("please select at least 1 Section");
 		return false;

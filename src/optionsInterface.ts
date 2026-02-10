@@ -9,6 +9,7 @@ interface Options {
 		lastModified: boolean;
 		avatars: boolean;
 		time: boolean;
+		liveUpdate: boolean;
 	};
 }
 

@@ -81,6 +81,7 @@ const optionsDefault = {
 		time: false,
 		lastModified: true,
 		avatars: true,
+    liveUpdate: true
 	},
 } as Options;
 

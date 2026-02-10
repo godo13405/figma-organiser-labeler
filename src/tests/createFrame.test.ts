@@ -4,6 +4,7 @@ describe('create frame', () => {
   test('correctly', () => {
     expect(createFrame()).toStrictEqual({
 			appendChild: expect.any(Function),
+			remove: expect.any(Function),
 			children: expect.any(Array),
 			name: "Status Report",
 			layoutMode: "VERTICAL",
