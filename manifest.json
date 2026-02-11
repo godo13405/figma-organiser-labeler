@@ -89,7 +89,7 @@
     },
     {"separator": true},
     {
-      "name": "📑 Run Stauts Report",
+      "name": "📑 Run Status Report",
       "command": "report"
     },
     {

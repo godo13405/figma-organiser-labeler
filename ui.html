@@ -362,20 +362,37 @@
         </svg>
       </button>
     </span>
-    <label for="report-option-name"><input type="checkbox" role="switch" class="switch" id="report-option-name"
-        onchange="reportOption('name',this.checked)" />Names</label>
-    <label for="report-option-avatars"><input type="checkbox" role="switch" class="switch" id="report-option-avatars"
-        onchange="reportOption('avatars',this.checked)" />Avatars</label>
-    <label for="report-option-date"><input type="checkbox" role="switch" class="switch" id="report-option-date"
-        onchange="reportOption('date', this.checked)" />Dates</label>
-    <label for="report-option-time"><input type="checkbox" role="switch" class="switch" id="report-option-time"
-        onchange="reportOption('time', this.checked)" />Times</label>
-    <label for="report-option-liveUpdate"><input type="checkbox" role="switch" class="switch"
-        id="report-option-liveUpdate" onchange="reportOption('liveUpdate', this.checked)" />Live Update</label>
+    <label for="report-option-name">
+      <input type="checkbox" role="switch" class="switch" id="report-option-name"
+        onchange="reportOption('name',this.checked)" />
+        Names
+      </label>
+    <label for="report-option-avatars">
+      <input type="checkbox" role="switch" class="switch" id="report-option-avatars"
+        onchange="reportOption('avatars',this.checked)" />
+        Avatars
+      </label>
+    <label for="report-option-date">
+      <input type="checkbox" role="switch" class="switch" id="report-option-date"
+        onchange="reportOption('date', this.checked)" />
+        Dates
+      </label>
+    <label for="report-option-time">
+      <input type="checkbox" role="switch" class="switch" id="report-option-time"
+        onchange="reportOption('time', this.checked)" />
+        Times
+      </label>
+    <label for="report-option-liveUpdate">
+      <input type="checkbox" role="switch" class="switch"
+        id="report-option-liveUpdate" onchange="reportOption('liveUpdate', this.checked)" />
+        Live Update
+      </label>
     <hr />
-    <label for="report-option-lastmodified"><input type="checkbox" role="switch" class="switch"
-        id="report-option-lastmodified" onchange="reportOption('lastmodified', this.checked)" />Report ran on
-      date</label>
+    <label for="report-option-lastmodified">
+      <input type="checkbox" role="switch" class="switch"
+        id="report-option-lastmodified" onchange="reportOption('lastmodified', this.checked)" />
+        Report ran on date
+      </label>
   </div>
 </main>
 <main class="content-container help-target" id="help-content">
@@ -430,7 +447,7 @@
     labelInput.classList.add("status-edit-label");
 
     const deleteButton = document.createElement("button");
-    deleteButton.title = "delete";
+    deleteButton.title = "Delete";
     deleteButton.classList.add("status-delete");
 
     deleteButton.addEventListener("click", (e) => {
@@ -482,6 +499,7 @@
     document.querySelector("#report-option-date").checked = document.options.config.date;
     document.querySelector("#report-option-time").checked = document.options.config.time;
     document.querySelector("#report-option-avatars").checked = document.options.config.avatars;
+    document.querySelector("#report-option-liveUpdate").checked = document.options.config.liveUpdate;
     document.querySelector("#report-option-lastmodified").checked = document.options.config.lastModified;
 
     // clear existing lists

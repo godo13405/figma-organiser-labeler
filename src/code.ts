@@ -57,6 +57,7 @@ const figmaCommand = (command) => {
 			runReportPeople().then(() => {
 				figma.closePlugin();
 			});
+			figma.notify(`People Report Ready`);
 			break;
 		default:
 			const stateName = findStatus(command.slice(8, command.length).replaceAll("-", " "), options);

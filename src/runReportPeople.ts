@@ -16,9 +16,6 @@ const runReportPeople = async () => {
 		frame.children.forEach((child) => child.remove());
 	}
 
-	// ✅ Font must be loaded BEFORE setting characters
-	await figma.loadFontAsync(_font.default);
-
 	// create container for header
 	const headerContainer = figma.createFrame();
 	headerContainer.name = "People Report Header";
@@ -44,10 +41,13 @@ const runReportPeople = async () => {
 			if (!authors[name]) {
 				authors[name] = {};
 			}
-			if (!authors[name][status]) {
+			if (status != 'null' && !authors[name][status]) {
 				authors[name][status] = 0;
 			}
-			authors[name][status]++;
+
+			if (status != 'null' ) {
+				authors[name][status]++;
+			}
 		}
 	});
 
@@ -61,11 +61,11 @@ const runReportPeople = async () => {
 
 	frame.appendChild(authorsContainer);
 
-	Object.keys(authors).forEach((author) => {
+	Object.keys(authors).forEach(async (author) => {
 		const authorContainer = figma.createFrame();
+		authorContainer.layoutMode = "VERTICAL";
 		authorContainer.minWidth = _containerWidth;
 		authorContainer.name = "People Report Author";
-		authorContainer.layoutMode = "VERTICAL";
 		authorContainer.primaryAxisSizingMode = "AUTO";
 		authorContainer.counterAxisSizingMode = "AUTO";
 		authorContainer.paddingTop = _baseSize;
@@ -95,9 +95,7 @@ const runReportPeople = async () => {
 		];
 		authorHeader.strokeBottomWeight = 1;
 
-		const text = figma.createText();
-		text.fontSize = 16;
-		text.characters = author;
+		const text = await createTextRow(author, "header");
 
 		// count all statuses
 		let authorStatusCount = 0;
@@ -105,10 +103,7 @@ const runReportPeople = async () => {
 			authorStatusCount += authors[author][stat];
 		});
 
-		const count = figma.createText();
-		count.fontSize = 16;
-		count.fontName = _font.bold;
-		count.characters = ` ${authorStatusCount}`;
+		const count = await createTextRow(authorStatusCount.toString(), "header");
 
 		authorHeader.appendChild(text);
 		authorHeader.appendChild(count);
@@ -119,7 +114,7 @@ const runReportPeople = async () => {
 		authorsContainer.appendChild(authorContainer);
 
 		// populate list of statuses
-		Object.keys(authors[author]).forEach((status, i) => {
+		Object.keys(authors[author]).forEach(async (status, i) => {
 			const authorStatus = figma.createFrame();
 			authorStatus.name = "People Report Author Title";
 			authorStatus.layoutMode = "HORIZONTAL";
@@ -139,14 +134,11 @@ const runReportPeople = async () => {
 			authorStatus.strokeWeight = 0;
 			if (i) authorStatus.strokeTopWeight = 1;
 
-			const statusText = figma.createText();
+			const statusText = await createTextRow(status.toString(), "header");
 			statusText.fontSize = 16;
 			statusText.characters = status;
 
-			const statusCount = figma.createText();
-			statusCount.fontSize = 16;
-			statusCount.fontName = { family: _font.bold.family, style: _font.bold.style };
-			statusCount.characters = `${authors[author][status]}`;
+			const statusCount = await createTextRow(authors[author][status].toString(), "header");
 
 			authorStatus.appendChild(statusText);
 			authorStatus.appendChild(statusCount);
