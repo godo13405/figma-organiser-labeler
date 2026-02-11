@@ -27,19 +27,19 @@ const setTitle = ({ state, options }: {state?, options?} = {}) => {
 		// if selection isn't a frame, check parents
 		const selection = getParentSection(selected);
 
-		selection.map((selected) => {
+		selection.map((_selected) => {
 			// let's make sure the name isn't erased. Let's extract it from the name
-			const oldStatus = selected.name;
+			const oldStatus = _selected.name;
 			const title = oldStatus.split(/\] /gm);
 			const titleArr = title.slice(title.length - 1, title.length)[0];
 
-			selected.name = `{${output.state}} [${output.author}] ${
-				titleArr || selected.name
+			_selected.name = `{${output.state}} [${output.author}] ${
+				titleArr || _selected.name
 			}`;
 
 			// update line in report
 			if (options.config.liveUpdate) {
-				updateReportLine({node: selected, options, oldStatus});
+				updateReportLine({node: _selected, options, oldStatus});
 			}
 		});
 

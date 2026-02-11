@@ -1,15 +1,16 @@
 import { _sectionPadding } from "./_vars";
 
 const findParent = (elem, parentType = "SECTION", previousElem = elem) => {
-	if (elem.type == parentType) {
-		return elem;
-	} else if (elem.type == "PAGE") {
+	if (elem.parent.type == parentType) {
+		return elem.parent;
+	} else if (elem.parent.type == "PAGE") {
 		const section = figma.createSection();
-		section.x = previousElem.x - _sectionPadding;
-		section.y = previousElem.y - _sectionPadding;
+		section.name = elem.name;
+		section.x = previousElem.x - _sectionPadding || 20;
+		section.y = previousElem.y - _sectionPadding || 20;
 		section.resizeWithoutConstraints(
-			previousElem.width + _sectionPadding * 2,
-			previousElem.height + _sectionPadding * 2
+			previousElem.width + _sectionPadding * 2 || 100,
+			previousElem.height + _sectionPadding * 2 || 100
 		);
 
 		figma.currentPage.appendChild(section);

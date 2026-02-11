@@ -7,7 +7,7 @@ const getParentSection = (selected) => {
 		if (s.type === "SECTION") {
 			output.push(s);
 		} else {
-			output.push(findParent(s.parent));
+			output.push(findParent(s));
 		}
 	});
 
