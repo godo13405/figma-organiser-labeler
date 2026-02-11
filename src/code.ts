@@ -114,6 +114,9 @@ figma.ui.onmessage = ({
 			case "exportTo":
 				exportTo({ type: "csv" });
 				break;
+			case "resizeWindow":
+				figma.ui.resize(options.width || _frame.width, options.height || _frame.height);
+				break;
 			default:
 				setTitle({ state, options });
 				break;
