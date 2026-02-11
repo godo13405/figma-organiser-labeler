@@ -2,18 +2,21 @@ import findParent from "../findParent";
 
 describe("find parent", () => {
 	let params = {
+		name: "lorem ipsum",
 		width: 100,
 		height: 50,
 		x: 1,
 		y: 1,
 		type: "FRAME",
 		parent: {
+			name: "dolor",
 			width: 100,
 			height: 50,
 			x: 1,
 			y: 1,
 			type: "FRAME",
 			parent: {
+				name: "sit amet",
 				width: 100,
 				height: 50,
 				x: 1,
@@ -25,11 +28,12 @@ describe("find parent", () => {
 
 	test("finds parent of parent section", () => {
 		expect(findParent(params)).toStrictEqual({
-			"width": expect.any(Number),
-			"height": expect.any(Number),
-			"x": expect.any(Number),
-			"y": expect.any(Number),
-			"type": "SECTION"
+			name: "sit amet",
+			width: expect.any(Number),
+			height: expect.any(Number),
+			x: expect.any(Number),
+			y: expect.any(Number),
+			type: "SECTION"
 		});
 	});
 
@@ -38,9 +42,12 @@ describe("find parent", () => {
 
 		const result = findParent(params);
 
-		delete result.appendChild;
-		delete result.resizeWithoutConstraints;
-
-		expect(result).toStrictEqual({ "x": expect.any(Number), "y": expect.any(Number)});
+		expect(result).toStrictEqual({
+			appendChild: expect.any(Function),
+			resizeWithoutConstraints: expect.any(Function),
+			name: "dolor",
+			x: expect.any(Number),
+			y: expect.any(Number)
+		});
 	});
 });

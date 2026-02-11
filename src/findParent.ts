@@ -1,6 +1,7 @@
 import { _sectionPadding } from "./_vars";
 
 const findParent = (elem, parentType = "SECTION", previousElem = elem) => {
+	console.log("🚀 ~ findParent ~ elem:", elem)
 	if (elem.parent.type == parentType) {
 		return elem.parent;
 	} else if (elem.parent.type == "PAGE") {
