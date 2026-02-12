@@ -13,8 +13,8 @@ const updateReportLine = async ({node, options, oldStatus}) => {
 
 		// is there an old status?
 		const hasOldStatus = oldStatus.match(/^\{.*?\}/g);
-		let groupContainerOld;
-
+		let groupContainerOld = [] as FrameNode[];
+		
 		if (hasOldStatus) {
 			// find group for old status
 			groupContainerOld = reportContainer.findChildren(n => n.name == oldStatus.match(/^\{.*?\}/g)![0].replace("{", "").replace("}", "")) as FrameNode[];
@@ -32,11 +32,15 @@ const updateReportLine = async ({node, options, oldStatus}) => {
 		// placeholder for container
 		let containerNode;
 		
-		if (groupContainerOld) {
-			containerNode = groupContainerOld.findChildren((n) => {
+		if (groupContainerOld.length) {
+			try {
+			containerNode = groupContainerOld[0].findChildren((n) => {
 				if (isFirst) isFirst = false;
 				return n.name == sectionName
 			})[0] as FrameNode;
+			} catch (e) {
+				
+			}
 
 			if (node.name != oldStatus) {
 				containerNode.remove();
