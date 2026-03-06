@@ -1,26 +1,29 @@
 import getReportGroup from "./getReportGroup";
 import runReport from "./runReport";
+import savedId from "./savecId";
 import writeLine from "./writeLine";
 
 const updateReportLine = async ({node, options, oldStatus}) => {
 	// find the item to uppdate
 	let isFirst = true;
 	// check if the report exists
-	let statusReportContainer = figma.currentPage.findChildren(n => n.name == "Status Report Container")[0] as FrameNode;
+	let statusReportContainer = figma.currentPage.findChild(n => n.name == "Status Report Container") as FrameNode;
 	if (statusReportContainer) {
-		let sectionName = node.name.replace(/^\{.*?\}\s\[[A-Z]{2}\]/g, "").trim();
-		const reportContainer = statusReportContainer.findChildren(n => n.name == "Report Container")[0] as FrameNode;
-
-		// is there an old status?
-		const hasOldStatus = oldStatus.match(/^\{.*?\}/g);
-		let groupContainerOld = [] as FrameNode[];
+		const sectionName = node.name.replace(/^\{.*?\}\s\[[A-Z]{2}\]/g, "").trim();
+		const sectionStatus = node.name.match(/^\{.*?\}/g)[0].replace("{", "").replace("}", "");
+		const reportContainer = statusReportContainer.findChild(n => n.name == "Report Container") as FrameNode;
 		
-		if (hasOldStatus) {
+		// is there an old status?
+		let oldStatusName = oldStatus.match(/^\{.*?\}/g);
+		let groupContainerOld;
+		
+		if (oldStatusName) {
 			// find group for old status
-			groupContainerOld = reportContainer.findChildren(n => n.name == oldStatus.match(/^\{.*?\}/g)![0].replace("{", "").replace("}", "")) as FrameNode[];
+			oldStatusName = oldStatusName[0].replace("{", "").replace("}", "");
+			groupContainerOld = reportContainer.findChild(n => n.name == oldStatusName) as FrameNode;
 		}
 		// find group for new status
-		let groupContainerNew = reportContainer.findChildren(n => n.name == node.name.match(/^\{.*?\}/g)[0].replace("{", "").replace("}", ""))[0] as FrameNode;
+		let groupContainerNew = reportContainer.findChild(n => n.name == sectionStatus) as FrameNode || await getReportGroup({name: sectionStatus, count: 1});
 
 		// get new lines
 		const writtenLine = await writeLine({
@@ -32,40 +35,43 @@ const updateReportLine = async ({node, options, oldStatus}) => {
 		// placeholder for container
 		let containerNode;
 		
-		if (groupContainerOld.length) {
-			try {
-			containerNode = groupContainerOld[0].findChildren((n) => {
-				if (isFirst) isFirst = false;
-				return n.name == sectionName
-			})[0] as FrameNode;
-			} catch (e) {
-				
-			}
-
-			if (node.name != oldStatus) {
-				containerNode.remove();
-			}
-
-			if (containerNode.children) {
-				containerNode.children.forEach((child) => child.remove());
-				writtenLine.children.forEach((line) => {
-					containerNode.appendChild(line);
-				});
-				writtenLine.remove();
-			}
+		if (groupContainerOld) {
+			const lineItemContainerOld = groupContainerOld.findChild(n => n.name == "Status Container") as FrameNode;
+			containerNode = lineItemContainerOld.findChild((n) => {
+				const id = n.getPluginData("savedId");
+				const result = node.id == id;
+				if (isFirst && result) isFirst = false;
+				return result;
+			});
 		}
 
+		if (node.name != oldStatus && containerNode) {
+			// containerNode.remove();
+		} else if (containerNode.children) {
+			containerNode.children.forEach((child) => child.remove());
+			writtenLine.children.forEach((line) => {
+				containerNode.appendChild(line);
+			});
+		}
+		
 		if (!containerNode) {
 			containerNode = writtenLine;
 		}
+		writtenLine.remove();
+
 		
-		if (!groupContainerNew){
-			groupContainerNew = await getReportGroup({name: sectionName, count: 1});
+		// append line to new status
+		const groupContainerNewLineContainer = groupContainerNew.findChild(n => n.name == "Status Container") as FrameNode;
+		groupContainerNewLineContainer.appendChild(containerNode);
+
+		// TODO
+		// can't appendChild, claims groupContainerNew is undefined, even tho it isn't. Need to investigate further 
+		const groupContainerNewExists = reportContainer.findChild(n => n.name == sectionStatus);
+
+		if (!groupContainerNewExists) {
 			reportContainer.appendChild(groupContainerNew);
 		}
-
-		// append line to new status
-		groupContainerNew.appendChild(containerNode);
+		
 
 		return {
 			isNew: node.name == oldStatus,

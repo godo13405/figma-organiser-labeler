@@ -31,7 +31,7 @@ const writeLine = async ({ node, isFirst, options }: {node, isFirst, options }) 
 
 	// add selection name
 	const name = node.name.replace(/^\{.*?\}\s\[[A-Z]{2}\]/g, "").trim();
-	line.name = name;
+	line.name = `${name} status`;
 	const nameText = await createTextRow(name);
 	nameText.hyperlink = {
 		type: "URL",
@@ -63,6 +63,9 @@ const writeLine = async ({ node, isFirst, options }: {node, isFirst, options }) 
 
 		line.appendChild(_container);
 	}
+
+	// save node id to find it later
+	line.setPluginData("savedId", node.id);
 
 	return line;
 };

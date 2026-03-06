@@ -442,7 +442,9 @@ const resizeToFitContent = () => {
   const checkEmoji = (str) => {
     const emojiRegex =
       /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
-    return emojiRegex.test(str);
+    const result = emojiRegex.test(str);
+
+    return result;
   };
 
   const addStatus = (option, key = `status-edit-${statusKeyTracker}`) => {

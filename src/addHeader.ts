@@ -8,6 +8,7 @@ const addHeader = async ({ title, count }) => {
 	title = await createTextRow(title, "header");
 
 	const titleContainer = figma.createFrame();
+	titleContainer.name = "Title Container";
 	titleContainer.layoutMode = "HORIZONTAL";
 	titleContainer.layoutAlign = "STRETCH";
 	titleContainer.primaryAxisSizingMode = "FIXED";

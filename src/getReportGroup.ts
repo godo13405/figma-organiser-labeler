@@ -25,6 +25,14 @@ const getReportGroup = async ({name, count}) => {
 
     container.appendChild(await addHeader({ title: name, count }));
 
+    // add cointainer for line items
+    const lineItemContainer = figma.createFrame();
+    lineItemContainer.name = "Status Container";
+    lineItemContainer.layoutMode = "VERTICAL";
+    lineItemContainer.layoutAlign = "STRETCH";
+
+    container.appendChild(lineItemContainer);
+
     return container;
 }
 

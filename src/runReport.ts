@@ -8,6 +8,7 @@ import writeLine from "./writeLine";
 import addHeader from "./addHeader";
 import { _baseSize, _containerWidth, _font, _frame, _sectionPadding , _color} from "./_vars";
 import getReportGroup from "./getReportGroup";
+import getReportables from "./getReportables";
 
 
 const runReport = async (options) => {
@@ -48,30 +49,8 @@ const runReport = async (options) => {
 		headerContainer.appendChild(reportLastModified);
 	}
 
-	// find all sections
-	const NAME_REGEX = /^\{.*?\}\s\[[A-Z]{2}\]/;
-	const matches = figma.currentPage.findChildren((node) => {
-		return node.type === "SECTION" && NAME_REGEX.test(node.name);
-	}).sort((a, b) => a.name.localeCompare(b.name));
-
-	// go over each match and distribute by status
-	const orgMatches = {};
-
-	// create groups per status
-	for (const node of matches) {
-		// find the status name
-		const status = node.name
-			.match(/^\{.*?\}/g)![0]
-			.replace("{", "")
-			.replace("}", "");
-
-		// if it doesn't exist already, create an array under the status name
-		if (!orgMatches[status]) {
-			orgMatches[status] = [];
-		}
-
-		orgMatches[status].push(node);
-	}
+	const orgMatches = getReportables();
+	let reportablesCount = 0;
 
 	frame.appendChild(headerContainer);
 
@@ -97,21 +76,27 @@ const runReport = async (options) => {
 
 		// create group container
 		const container = await getReportGroup({name: group, count});
+		const lineItemContainer = container.findChild(n => n.name == "Status Container") as FrameNode;
 
 		// add items
 		let isFirst = true;
-		for (const node of orgMatches[group]) {
+
+		for (const nodeId of orgMatches[group]) {
+			const node = await figma.getNodeByIdAsync(nodeId);
 			const line = await writeLine({ node, isFirst, options });
-			container.appendChild(line);
+			lineItemContainer.appendChild(line);
 			isFirst = false;
+
+			reportablesCount++;
 		}
 
+		container.appendChild(lineItemContainer);
 		reportContainer.appendChild(container);
 	}
 
 	frame.appendChild(reportContainer);
 
-	figma.notify(`${matches.length} added to report`);
+	figma.notify(`${reportablesCount} added to report`);
 
 	return frame;
 };

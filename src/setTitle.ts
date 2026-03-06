@@ -18,15 +18,16 @@ const setTitle = ({ state, options }: {state?, options?} = {}) => {
 			state = state[0];
 		}
 
-		const output = {
-			state: `${state.marker} ${state.label}`,
-			author: setMetadata(figma.currentUser, options),
-		};
 
 		// loop over selection
 		// if selection isn't a frame, check parents
-		const selection = getParentSection(selected);
-
+		const selection = getParentSection(selected); // returns array of Selections
+		const metadata = setMetadata({options});
+		const output = {
+			state: `${state.marker} ${state.label}`,
+			author: metadata.initials || "unknown",
+		};
+		
 		selection.map((_selected) => {
 			// let's make sure the name isn't erased. Let's extract it from the name
 			const oldStatus = _selected.name;
