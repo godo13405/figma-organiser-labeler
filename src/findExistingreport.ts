@@ -7,7 +7,7 @@ const findExistingReport = (_name = "Status Report Container") => {
 
 	if (!frame) {
 		frame = createFrame();
-		frame.name = "Status Report Container";
+		frame.name = _name;
 		figma.currentPage.appendChild(frame);
 	} else {
 		// Clear existing content

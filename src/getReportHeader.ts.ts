@@ -3,7 +3,7 @@ import createTextRow from "./createTextRow";
 import getDateString from "./getDateString";
 import getTimeString from "./getTimeString";
 
-const getReportHeader = async ({options}) => {
+const getReportHeader = async ({options, lastModified = true}) => {
 	const headerContainer = figma.createFrame();
 	headerContainer.name = "Status Report Header";
 	headerContainer.layoutMode = "HORIZONTAL";
@@ -18,7 +18,7 @@ const getReportHeader = async ({options}) => {
 	headerContainer.appendChild(reportTitle);
 
 	// set date last modified
-	if (options.config.lastModified) {
+	if (lastModified && options.config.lastModified) {
 		const reportLastModified = await createTextRow(` ran on ${getDateString()} at ${getTimeString()}`);
 		reportLastModified.opacity = 0.6;
 		headerContainer.appendChild(reportLastModified);

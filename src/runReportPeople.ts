@@ -2,33 +2,14 @@ import { _font, _baseSize, _color, _containerWidth } from "./_vars";
 import createFrame from "./createFrame";
 import createTextRow from "./createTextRow";
 import findExistingReport from "./findExistingreport";
+import getReportHeader from "./getReportHeader.ts";
 import hexToRgb from "./hexToRgb";
 
-const runReportPeople = async () => {
+const runReportPeople = async ({options}) => {
 	let frame = findExistingReport("People Report Container");
 
-	if (!frame) {
-		frame = createFrame();
-		frame.name = "People Report Container";
-		figma.currentPage.appendChild(frame);
-	} else {
-		// Clear existing content
-		frame.children.forEach((child) => child.remove());
-	}
-
 	// create container for header
-	const headerContainer = figma.createFrame();
-	headerContainer.name = "People Report Header";
-	headerContainer.layoutMode = "HORIZONTAL";
-	headerContainer.primaryAxisSizingMode = "AUTO";
-	headerContainer.counterAxisSizingMode = "AUTO";
-	headerContainer.itemSpacing = _baseSize;
-	headerContainer.fills = [{ type: "SOLID", color: _color.background }];
-
-	// set report title
-	const reportTitle = await createTextRow("People Report", "header");
-	reportTitle.layoutAlign = "MIN";
-	headerContainer.appendChild(reportTitle);
+	const headerContainer = await getReportHeader({options, lastModified: false});
 
 	frame.appendChild(headerContainer);
 
@@ -44,12 +25,13 @@ const runReportPeople = async () => {
 			if (status != 'null' && !authors[name][status]) {
 				authors[name][status] = 0;
 			}
-
+			
 			if (status != 'null' ) {
 				authors[name][status]++;
 			}
 		}
 	});
+	console.log("🚀 ~ runReportPeople ~ authors:", authors)
 
 	// create a container for the authors
 	const authorsContainer = figma.createFrame();
