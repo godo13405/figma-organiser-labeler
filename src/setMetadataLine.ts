@@ -3,10 +3,10 @@ import setMetadata from "./setMetadata";
 const setMetadataLine = async (node, options) => {
 	const output = {text: []} as { image?: FrameNode, text: string[] } ;
 	
-	const photoUrl = node.getPluginData("authorPhotoUrl") || setMetadata({options, selected: [node], setProperty: {avatars: true}}).avatar;
-	const author = node.getPluginData("authorFullName") || setMetadata({options, selected: [node], setProperty: {author: true}}).author;
-	const date = node.getPluginData("dateModified") || setMetadata({options, selected: [node], setProperty: {date: true}}).date;
-	const time = node.getPluginData("timeModified") || setMetadata({options, selected: [node], setProperty: {time: true}}).time;
+	const photoUrl = node.getSharedPluginData("StatusReporter", "authorPhotoUrl") || setMetadata({options, selected: [node], setProperty: {avatars: true}}).avatar;
+	const author = node.getSharedPluginData("StatusReporter", "authorFullName") || setMetadata({options, selected: [node], setProperty: {author: true}}).author;
+	const date = node.getSharedPluginData("StatusReporter", "dateModified") || setMetadata({options, selected: [node], setProperty: {date: true}}).date;
+	const time = node.getSharedPluginData("StatusReporter", "timeModified") || setMetadata({options, selected: [node], setProperty: {time: true}}).time;
 	
 	if (photoUrl) {
 		// // TODO 

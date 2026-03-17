@@ -5,20 +5,20 @@ describe("create csv string", () => {
 		figma.currentPage.findChildren = jest.fn(() => {
 			const mock = [
 				{ id: '123',
-                    getPluginData: (e) => 'authorFullName',
+                    getSharedPluginData: (namespace, key, e) => 'authorFullName',
                     name: "{💠 ️Ready to Dev} [GA] Admin / ACL" },
 				{ id: '123',
-                    getPluginData: (e) => 'authorFullName',
+                    getSharedPluginData: (namespace, key, e) => 'authorFullName',
                     name: "{💠 ️Ready to Dev} [GA] Admin / Audit Log" },
 				,
 				{
 					id: '123',
-                    getPluginData: (e) => 'authorFullName',
+                    getSharedPluginData: (namespace, key, e) => 'authorFullName',
                     name: "{💠 ️Ready to Dev} [GA] Admin / Field Maintenance",
 				},
 				,
 				{ id: '123',
-                    getPluginData: (e) => 'authorFullName',
+                    getSharedPluginData: (namespace, key, e) => 'authorFullName',
                     name: "{🟣 ️Needs Review} [GA] Admin / Form Designer" },
 			] as SceneNode[];
 			return mock;

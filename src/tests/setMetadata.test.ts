@@ -6,14 +6,16 @@ describe("set initials", () => {
 		jest.useFakeTimers().setSystemTime(new Date("2020-01-01 00:00"));
 	})
 	test("1 letter", () => {
-		expect(setMetadata({user: {
+		const metadata = setMetadata({user: {
 			name: "Robute"
-		}, options: global.options})).toBe("R")
+		}, options: global.options});
+		expect(metadata.initials).toBe("R")
 	});
 	test("2 letters", () => {
-		expect(setMetadata({user:{
+		const metadata = setMetadata({user:{
 			name: "Robute Guilliman"
-		}, options: global.options})).toBe("RG")
+		}, options: global.options});
+		expect(metadata.initials).toBe("RG")
 	});
 
 	test("metadata has been set", () => {

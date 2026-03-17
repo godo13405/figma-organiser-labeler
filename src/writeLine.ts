@@ -3,7 +3,12 @@ import createTextRow from "./createTextRow";
 import getLink from "./getLink";
 import setMetadataLine from "./setMetadataLine";
 
-const writeLine = async ({ node, isFirst, options }: {node, isFirst, options }) => {
+const writeLine = async ({ node, isFirst, options, nodeId }: {node?, isFirst, options, nodeId? }) => {
+	// find the node if we only have the id
+	if (!node && nodeId) {
+		node = await figma.currentPage.findChild(n => n.id == nodeId);
+	}
+
 	// add author name
 	const metadataLine = await setMetadataLine(node, options);
 	
@@ -65,7 +70,7 @@ const writeLine = async ({ node, isFirst, options }: {node, isFirst, options }) 
 	}
 
 	// save node id to find it later
-	line.setPluginData("savedId", node.id);
+	line.setSharedPluginData("StatusReporter", "savedId", node.id);
 
 	return line;
 };

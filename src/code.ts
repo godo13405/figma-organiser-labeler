@@ -46,7 +46,7 @@ const figmaCommand = (command) => {
 			// can take a while, so set a loading message
 			figma.notify(`Generating report…`);
 
-			runReport(options).then(() => {
+			runReport({options}).then(() => {
 				figma.closePlugin();
 			});
 			break;

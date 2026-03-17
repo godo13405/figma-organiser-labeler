@@ -35,7 +35,7 @@ const runReportPeople = async () => {
 	// get all authors
 	const authors = {};
 	figma.currentPage.children.map((node) => {
-		const name = node.getPluginData("authorFullName");
+		const name = node.getSharedPluginData("StatusReporter", "authorFullName");
 		if (name.length) {
 			const status = `${node.name.match(/\{[^}]*/gm)}`.replace("{", "").trim();
 			if (!authors[name]) {

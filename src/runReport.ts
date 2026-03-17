@@ -1,58 +1,27 @@
 import findExistingReport from "./findExistingreport";
-import createFrame from "./createFrame";
-import createTextRow from "./createTextRow";
-import getDateString from "./getDateString";
-import getTimeString from "./getTimeString";
-import hexToRgb from "./hexToRgb";
 import writeLine from "./writeLine";
-import addHeader from "./addHeader";
 import { _baseSize, _containerWidth, _font, _frame, _sectionPadding , _color} from "./_vars";
 import getReportGroup from "./getReportGroup";
 import getReportables from "./getReportables";
+import getReportHeader from "./getReportHeader.ts";
 
 
-const runReport = async (options) => {
-	let frame = findExistingReport();
-
-	if (!frame) {
-		frame = createFrame();
-		frame.name = "Status Report Container";
-		figma.currentPage.appendChild(frame);
-	} else {
-		// Clear existing content
-		if (frame.children) {
-			frame.children.forEach((child) => child.remove());
+const runReport = async ({options, refreshReport = true, orgMatches = getReportables(refreshReport)}) => {
+	// cleanup empty groups
+	Object.keys(orgMatches).forEach((status) => {
+		if (!orgMatches[status].length) {
+			delete orgMatches[status];
 		}
-	}
+	});
 
-	// ✅ Font must be loaded BEFORE setting characters
-	await figma.loadFontAsync({ family: _font.default.family, style: _font.default.style });
+
+	let reportParent = findExistingReport();
 
 	// create container for header
-	const headerContainer = figma.createFrame();
-	headerContainer.name = "Status Report Header";
-	headerContainer.layoutMode = "HORIZONTAL";
-	headerContainer.counterAxisAlignItems = "CENTER";
-	headerContainer.primaryAxisSizingMode = "AUTO";
-	headerContainer.counterAxisSizingMode = "AUTO";
-	headerContainer.itemSpacing = _baseSize;
-	headerContainer.fills = [{ type: "SOLID", color: _color.background }];
+	const headerContainer = await getReportHeader({options});
+	reportParent.appendChild(headerContainer);
 
-	// set report title
-	const reportTitle = await createTextRow("Status Report", "header");
-	headerContainer.appendChild(reportTitle);
-
-	// set date last modified
-	if (options.config.lastModified) {
-		const reportLastModified = await createTextRow(` ran on ${getDateString()} at ${getTimeString()}`);
-		reportLastModified.opacity = 0.6;
-		headerContainer.appendChild(reportLastModified);
-	}
-
-	const orgMatches = getReportables();
 	let reportablesCount = 0;
-
-	frame.appendChild(headerContainer);
 
 	// create reporting container
 	const reportContainer = figma.createFrame();
@@ -70,20 +39,19 @@ const runReport = async (options) => {
 	];
 
 	// create status group
-	for (const group of Object.keys(orgMatches)) {
+	Object.keys(orgMatches).forEach(async (group) => {
 		// get count
 		const count = orgMatches[group].length;
 
 		// create group container
-		const container = await getReportGroup({name: group, count});
+		const container = await getReportGroup({ name: group, count });
 		const lineItemContainer = container.findChild(n => n.name == "Status Container") as FrameNode;
 
 		// add items
 		let isFirst = true;
 
 		for (const nodeId of orgMatches[group]) {
-			const node = await figma.getNodeByIdAsync(nodeId);
-			const line = await writeLine({ node, isFirst, options });
+			const line = await writeLine({ nodeId , isFirst, options });
 			lineItemContainer.appendChild(line);
 			isFirst = false;
 
@@ -92,13 +60,13 @@ const runReport = async (options) => {
 
 		container.appendChild(lineItemContainer);
 		reportContainer.appendChild(container);
-	}
+	});
 
-	frame.appendChild(reportContainer);
+	reportParent.appendChild(reportContainer);
 
 	figma.notify(`${reportablesCount} added to report`);
 
-	return frame;
+	return reportParent;
 };
 
 export default runReport;

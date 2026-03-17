@@ -94,17 +94,17 @@ const getOptions = ({
 		option = optionsDefault;
 		figma.notify("Statuses reset to default");
 	} else {
-		const savedOptions = figma.root.getPluginData("options");
+		const savedOptions = figma.root.getSharedPluginData("StatusReporter", "options");
 		if (savedOptions && savedOptions.length) {
 			option = JSON.parse(savedOptions);
 		} else {
 			figma.notify("No saved options, loading defaults");
-			option = optionsDefault;
+			if (!option) option = optionsDefault;
 		}
 	}
 
 	// update stored satuses
-	figma.root.setPluginData("options", JSON.stringify(option));
+	figma.root.setSharedPluginData("StatusReporter", "options", JSON.stringify(option));
 	return option;
 };
 

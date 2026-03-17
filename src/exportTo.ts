@@ -17,7 +17,7 @@ const exportTo = ({ type = "csv" }: {type?} = {}) => {
 		const emoji = section.name.match(/^\{([^\}]*)/gm)![0].substring(1).trim().split(" ")[0];
 		const status = section.name.match(/^\{([^\}]*)/gm)![0].substring(3).trim();
 		
-		csvString += `${name}, ${emoji} ${status}, ${section.getPluginData("authorFullName")}, ${section.getPluginData("dateModified")}, ${link}\n`;
+		csvString += `${name}, ${emoji} ${status}, ${section.getSharedPluginData("StatusReporter", "authorFullName")}, ${section.getSharedPluginData("StatusReporter", "dateModified")}, ${link}\n`;
 	});
 
 	figma.ui.postMessage({

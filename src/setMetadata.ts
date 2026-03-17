@@ -18,11 +18,11 @@ const setMetadata = ({user = figma.currentUser, options, selected = figma.curren
   	const timeModified = getTimeString();
 	
 	selected.forEach((node) => {
-		node.setPluginData("authorFullName", user.name);
-		node.setPluginData("authorInitials", initials);
-		node.setPluginData("dateModified", dateModified);
-		node.setPluginData("timeModified", timeModified);
-		node.setPluginData("authorPhotoUrl", user.photoUrl);
+		node.setSharedPluginData("StatusReporter", "authorFullName", user.name);
+		node.setSharedPluginData("StatusReporter", "authorInitials", initials);
+		node.setSharedPluginData("StatusReporter", "dateModified", dateModified);
+		node.setSharedPluginData("StatusReporter", "timeModified", timeModified);
+		node.setSharedPluginData("StatusReporter", "authorPhotoUrl", user.photoUrl);
 	});
 
 	const result = {

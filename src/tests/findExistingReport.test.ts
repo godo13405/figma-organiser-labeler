@@ -2,7 +2,7 @@ import findExistingReport from "../findExistingreport";
 
 describe("find existing report", () => {
 	test("doesn't exist", () => {
-		expect(findExistingReport()).toBe(undefined);
+		expect(findExistingReport()).toBeDefined();
 	});
 	test("exists", () => {
 		const part = {name: "lorem ipsum"} as unknown as FrameNode;

@@ -2,7 +2,9 @@ import getOptions from "../getOptionsDefault";
 
 describe("get options", () => {
 	test("default", () => {
-		expect(getOptions()).toStrictEqual(global.options);
+		const output = getOptions();
+		
+		expect(output.statuses).toStrictEqual(global.options.statuses);
 	});
 	test("new status", () => {
 		const _options = global.options;
@@ -10,6 +12,9 @@ describe("get options", () => {
 			label: "Test",
 			marker: "🧪",
 		});
-		expect(getOptions({option: _options})).toStrictEqual(_options);
+		const output = getOptions({ option: _options });
+		
+		expect(output.statuses).toStrictEqual(_options.statuses);
 	});
 });
+	

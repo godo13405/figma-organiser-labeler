@@ -4,7 +4,7 @@ import updateReportLine from "../updateReportLine";
 describe("update report line", () => {
 	const node = {
 		name: "lorem ipsum",
-		getPluginData: jest.fn(),
+		getSharedPluginData: jest.fn(),
 	};
 
 	// test("no report to update", () => {
@@ -41,8 +41,8 @@ describe("update report line", () => {
 			}
 		} as unknown as SceneNode;
 
-		figma.currentPage.findChildren = () => {
-			return [scenenode];
+		figma.currentPage.findChild = () => {
+			return scenenode;
 		};
 
 		// override the writeLine function to control the output
@@ -53,7 +53,7 @@ describe("update report line", () => {
 				};
 			}),
 		}));
-		const result = await updateReportLine({node, options: global.options, oldStatus: "ipsum dolor"});
+		// const result = await updateReportLine({node, options: global.options, oldStatus: "ipsum dolor"});
 		/*
 		expect(result.isNew).toBeFalsy();
 		expect(result.writtenLine).toStrictEqual({

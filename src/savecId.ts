@@ -1,10 +1,10 @@
 const savedId = ({id, node}:{id?: string, node: any}) => {
-    const savedId = node.getPluginData("savedId");
+    const savedId = node.getSharedPluginData("StatusReporter", "savedId");
 
     if (savedId) {
         return savedId;
     } else {
-        node.setPluginData("savedId", id);
+        node.setSharedPluginData("StatusReporter", "savedId", id);
         return id;
     }
 }

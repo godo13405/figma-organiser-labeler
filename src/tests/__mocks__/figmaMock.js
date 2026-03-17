@@ -4,8 +4,8 @@ global.figma = {
 	height: 1080,
 	root: {
 		name: "file name",
-		setPluginData: jest.fn(),
-		getPluginData: (param) => {
+		setSharedPluginData: jest.fn(),
+		getSharedPluginData: (param) => {
 			switch (param) {
 				case "options":
 					return JSON.stringify(global.options);
@@ -18,8 +18,19 @@ global.figma = {
 		appendChild: jest.fn(),
 		findChildren: () => [],
 		selection: [{
-			setPluginData: (key, value) => global[key] = value
-		}]
+			setSharedPluginData: (namespace, key, value) => global[key] = value
+		}],
+		setSharedPluginData: jest.fn(),
+		getSharedPluginData: (id, param) => {
+			switch (param) {
+				case "options":
+					return JSON.stringify(global.options);
+					break;
+				case "report":
+					return JSON.stringify(global.options);
+					break;
+			}
+		}
 	},
 	currentUser: {
 		name: "Robute Guilliman"
